@@ -1,3 +1,4 @@
+"use strict";
 define(["lib/Box2dWeb", "lib/pixi"], function (Box2D, PIXI) {
 
   var _METER_LENGTH = 10;

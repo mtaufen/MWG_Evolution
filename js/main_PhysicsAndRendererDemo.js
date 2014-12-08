@@ -59,17 +59,15 @@ require([
 
     var bodyDef = new b2BodyDef;
 
-    
-
     //create ground
     bodyDef.type = b2Body.b2_staticBody;
     fixDef.shape = new b2PolygonShape;
-    fixDef.shape.SetAsBox(20, 3);
+    fixDef.shape.SetAsBox(20, 2);
     bodyDef.position.Set(10, 400 / 30 + 1.8);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
     bodyDef.position.Set(10, -1.8);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
-    fixDef.shape.SetAsBox(3, 14);
+    fixDef.shape.SetAsBox(2, 14);
     bodyDef.position.Set(-1.8, 13);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
     bodyDef.position.Set(21.8, 13);
@@ -78,30 +76,12 @@ require([
     // Create boxes and add to the world
     PhysicsBox.SetMeterLength(30); // Pixi coordinates per meter in Box2D
     var boxes = [];
-    for (var i = 0; i < 2; ++i) {
-        var box = new PhysicsBox(2, 1);
+    for (var i = 0; i < 10; ++i) {
+        var box = new PhysicsBox(1, 1);
         box.addToB2World(Math.random() * 10, Math.random() * 10, world);
         boxes.push(box);
     }
 
-    //Create triange shape
-
-    bodyDef.type = b2Body.b2_dynamicBody;
-    fixDef.shape = new b2PolygonShape;
-    var verts = [];
-    verts[0] = new b2Vec2(0,0);
-    verts[1] = new b2Vec2(1,-1.0);
-    verts[2] = new b2Vec2(2,0);
-    fixDef.shape.SetAsArray(verts, 3);
-    bodyDef.position.Set(10,10);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-    //Create circle shape
-    fixDef.shape = new b2CircleShape;
-    fixDef.shape.m_p.Set(0, 0);
-    fixDef.shape.m_radius = 1;
-    bodyDef.position.Set(12,10);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
     //---------------------------------------------------
 
     function debugRendererInit() {
@@ -223,7 +203,7 @@ require([
 
     function pixiRendererInit() {
         // PIXI Init stuff
-        var stage = new PIXI.Stage(0x66FF59);
+        var stage = new PIXI.Stage(0x66FF99);
         var renderer = PIXI.autoDetectRenderer(600, 400);
         document.body.appendChild(renderer.view);
 
