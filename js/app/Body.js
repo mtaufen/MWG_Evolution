@@ -296,7 +296,6 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
           var sum = 0;
           this.impulseQueue.forEach(function (value) { sum += value; })
           this.bodyPart.joint.SetMotorSpeed(sum);
-          console.log(this.bodyPart.joint);
         })
       , new Mind.AfferentJunction(this, function () {
           return this.bodyPart.joint.GetMotorTorque();
@@ -338,12 +337,15 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
         jointDef.bodyB = attachB.bodyPart.body;
         jointDef.localAnchorA = attachA.complement.anchorPoint;
         jointDef.localAnchorB = attachB.complement.anchorPoint;
+
         jointDef.enableMotor = this.defaultEnableMotor;
         jointDef.motorSpeed = this.defaultMotorSpeed;
-        //jointDef.maxMotorTorque = this.defaultMaxMotorTorque;
+        jointDef.maxMotorTorque = this.defaultMaxMotorTorque;
 
         var joint = world.CreateJoint(jointDef);
         this.joint = joint;
+
+        console.log(joint);
 
       }
 
@@ -377,6 +379,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
   });
 
 
+  // TODO: THIS CLASS IS UNFINISHED
   Body.WheelJoint = Body.BodyPart.extend({
     // I ported the Box2D wheel joint into our copy of Box2DWeb
     // from a newer version of Box2D C++. -- Mike
@@ -514,7 +517,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       var circleFixture = new Box2D.Dynamics.b2FixtureDef();
       circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
       circleFixture.density = 1;
-      circleFixture.friction = 0.8;
+      circleFixture.friction = 0.7;
       circleFixture.shape.SetRadius(this.radius)
       circleFixture.filter.groupIndex = this.groupIndex;
 

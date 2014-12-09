@@ -100,7 +100,7 @@ require([
         debugDraw.SetDrawScale(30.0);
         debugDraw.SetFillAlpha(0.5);
         debugDraw.SetLineThickness(1.0);
-        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
         world.SetDebugDraw(debugDraw);
 
         window.setInterval(update, 1000 / 60);
