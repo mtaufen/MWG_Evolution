@@ -68,7 +68,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *  They are null (or 0, in the case of initialAngle) by default,
    *  but if set, certain joints will try to use them to extrapolate the
    *  positions of connected body parts.
-   *  The extrapolation process is described below in general for a
+   *  The extrapolation process is described below in general pseudocode for a
    *  joint with an initial reference angle, but you should note that certain
    *  joints may clamp the angle within their limits if limits are set,
    *  etc, depending on the joint.
@@ -97,8 +97,9 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *                            , B, B_attachment) {
    *    v = A.body.GetWorldVector(A_attachment.anchorPoint)
    *    B.initialAngle = nextPart.initialAngle + J.initialReferenceAngle
-   *    B_anchor_rot = B_attachment.anchorPoint
-   *    B.initialX = v.x -
+   *    B_anchor_rot = Utils.Box2D.b2Math.RotV(B_attachment.anchorPoint, B.initialAngle)
+   *    B.initialX = v.x - B_anchor_rot.x;
+   *    B.initialY = v.y - B_anchor_rot.y;
    *  }
    *
    *  // Detect the bodyPart not yet added to the world
@@ -106,11 +107,10 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *    // the reference angle of the joint is applied to
    *    // the initial angle of B
    *    B.initialAngle = B.initialAngle + J.referenceAngle
-   *    // the location of
+   *    SetUpInitialValues(A, A_attachment_point, B, B_attachment_point)
    *  Else:
-   *    Both joints are already in the world, so assume that
-   *    they are already placed as intended and just create
-   *    the joint.
+   *    Both body parts are already in the world, so assume that
+   *    they are already placed as intended.
    * -----
 
    * world
@@ -177,12 +177,6 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *  the attachment graph to ensure all attached body parts are
    *  added to the stage.
 
-   // NOTE: Will have to make sure we don't backtrack wrong when
-      //       traversing the tree of attachments while building the organsim.
-      // We'll need to pick the right graph traversal algorithm for adding
-      // the body part to the world/renderer.
-
-
    */
 
   Body.BodyPart = Class.extend({
@@ -191,9 +185,14 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       this.junctions = junctions || [];
       if (typeof(groupIndex) === 'undefined') { groupIndex = 0; }
 
+      this.initialX = null;
+      this.initialY = null;
+      this.initialAngle = 0;
+
+      this.groupIndex = groupIndex;
+
       this.world = null;
       this.stage = null;
-      this.groupIndex = groupIndex;
     }
   , attach: function (this_attach_index, other_bodyPart, other_attach_index) {
       var local = this.attachments[this_attach_index];
@@ -221,15 +220,24 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
 
   Body.WeldJoint = Body.BodyPart.extend({
     /*
+    Attachmentsl
       0: bodyPartA,
       1: bodyPartB
+
+    The initialJointData argument is an object containing information used
+    to set up the joint, but every parameter is optional (defaults
+    exist for all paraneters).
+    Parameters you may wish to add to it include:
+    - referenceAngle
 
       Note that attachment points on joints do not need anchor points.
 
       Also note that joints never need a groupIndex.
+
+
     */
 
-    init: function () {
+    init: function (jointData) {
       var attachments = [
         {
           bodyPart: null
@@ -242,6 +250,14 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
         ];
 
       this._super(attachments);
+
+      // Defaults
+      this.initialJointData = {
+        referenceAngle: 0
+      };
+      for (var key in jointData) {
+        if (typeof(jointData[key]) !== 'undefined' ) { this.initialJointData[key] = jointData[key] };
+      }
 
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
     }
@@ -321,14 +337,17 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       4: Afferent, propagates the torque of the motor
       5: Efferent, impulse total determines the max motor torque.
 
+    The initialJointData argument is an object containing information used
+    to set up the joint, but every parameter is optional (defaults
+    exist for all paraneters).
+    Parameters you may wish to add to it include:
+    - enableMotor
+    - motorSpeed
+    - maxMotorTorque
+    - referenceAngle
     */
 
-    init: function (defaultEnableMotor, defaultMotorSpeed, defaultMaxMotorTorque) {
-      if (typeof defaultEnableMotor === 'undefined') { defaultEnableMotor = false; }
-      if (typeof defaultMotorSpeed === 'undefined') { defaultMotorSpeed = 360 * Math.PI / 180; } // 1 rev / second
-      if (typeof defaultMaxMotorTorque === 'undefined') { defaultMaxMotorTorque = 2000; }
-
-
+    init: function (initialJointData) {
       var attachments = [
         {
           bodyPart: null
@@ -369,10 +388,18 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       ];
       this._super(attachments, junctions);
 
+      // Defaults
+      this.initialJointData = {
+        enableMotor: false
+      , motorSpeed: 360 * Math.PI / 180
+      , maxMotorTorque: 40
+      , referenceAngle: 0
+      };
+      for (var key in jointData) {
+        if (typeof(jointData[key]) !== 'undefined' ) { this.initialJointData[key] = jointData[key] };
+      }
+
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
-      this.defaultEnableMotor = defaultEnableMotor;
-      this.defaultMotorSpeed = defaultMotorSpeed;
-      this.defaultMaxMotorTorque = defaultMaxMotorTorque;
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -398,15 +425,12 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
         jointDef.localAnchorA = attachA.complement.anchorPoint;
         jointDef.localAnchorB = attachB.complement.anchorPoint;
 
-        jointDef.enableMotor = this.defaultEnableMotor;
-        jointDef.motorSpeed = this.defaultMotorSpeed;
-        jointDef.maxMotorTorque = this.defaultMaxMotorTorque;
+        jointDef.enableMotor = this.initialJointData.enableMotor;
+        jointDef.motorSpeed = this.initialJointData.motorSpeed;
+        jointDef.maxMotorTorque = this.initialJointData.maxMotorTorque;
 
         var joint = world.CreateJoint(jointDef);
         this.joint = joint;
-
-        console.log(joint);
-
       }
 
     }
