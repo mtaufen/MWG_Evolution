@@ -1,5 +1,10 @@
 "use strict";
-define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2D, PIXI, Class, Mind) {
+define([
+  "lib/Box2dWeb_dev"
+  , "lib/pixi"
+  , "lib/Utils"
+  , "lib/Class"
+  , "app/Mind"], function (Box2D, PIXI, Utils, Class, Mind) {
 
   var Body = {};
 
@@ -62,7 +67,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    * initialAngle
    *  See below.
 
-   * -----
+   *-----
    *  The initial position and angle values are applied to the Box2D body
    *  immediately after the Box2D body is added to the Box2D world.
    *  They are null (or 0, in the case of initialAngle) by default,
@@ -85,29 +90,18 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *
    *  // A function to set up the initialX, initialY, and initialAngle
    *  // properties of the next body part based on the body part
-   *  // already added to the world. This should be defined inside
-   *  // the scope of the addToWorld method on a given joint,
-   *  // so that joints can be flexible with how they position
-   *  // attached body parts and so that it can access the defaults
-   *  // defined for that joint. You should use .bind() when you call
-   *  // it to ensure that `this` is set to the calling body part that
-   *  // represents a joint.
+   *  // already added to the world. This should be defined as a
+   *  // method on the joint object.
    *  // Assumes A is in the world, and B is not in the world.
-   *  function SetUpInitialValues(A, A_attachment
-   *                            , B, B_attachment) {
-   *    v = A.body.GetWorldVector(A_attachment.anchorPoint)
-   *    B.initialAngle = nextPart.initialAngle + J.initialReferenceAngle
-   *    B_anchor_rot = Utils.Box2D.b2Math.RotV(B_attachment.anchorPoint, B.initialAngle)
-   *    B.initialX = v.x - B_anchor_rot.x;
-   *    B.initialY = v.y - B_anchor_rot.y;
+   *  function setInitialBodyValues(attachA, attachB) {
+   *    // See Body.WeldJoint for an example implementation
    *  }
    *
    *  // Detect the bodyPart not yet added to the world
    *  If A.body is not null and B.body is null:
    *    // the reference angle of the joint is applied to
    *    // the initial angle of B
-   *    B.initialAngle = B.initialAngle + J.referenceAngle
-   *    SetUpInitialValues(A, A_attachment_point, B, B_attachment_point)
+   *    setInitialBodyValues(A, B)
    *  Else:
    *    Both body parts are already in the world, so assume that
    *    they are already placed as intended.
@@ -237,7 +231,8 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
 
     */
 
-    init: function (jointData) {
+    init: function (initialJointData) {
+      if (typeof(initialJointData) === 'undefined') { initialJointData = {}; }
       var attachments = [
         {
           bodyPart: null
@@ -255,11 +250,22 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       this.initialJointData = {
         referenceAngle: 0
       };
-      for (var key in jointData) {
-        if (typeof(jointData[key]) !== 'undefined' ) { this.initialJointData[key] = jointData[key] };
+      for (var key in initialJointData) {
+        if (typeof(initialJointData[key]) !== 'undefined' ) { this.initialJointData[key] = initialJointData[key] };
       }
 
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
+    }
+  , setInitialBodyValues: function (attachA, attachB) {
+      // Assumes A is in the world and B is not.
+      var A_anchor_world = attachA.bodyPart.body.GetWorldPoint(attachA.complement.anchorPoint);
+      console.log("A_anchor_world");
+      console.log(A_anchor_world);
+      var A_angle = attachA.bodyPart.body.GetAngle();
+      attachB.bodyPart.initialAngle = A_angle + this.initialJointData.referenceAngle;
+      var B_anchor_rot = Utils.Box2D.b2Math.RotV( attachB.complement.anchorPoint, attachB.bodyPart.initialAngle );
+      attachB.bodyPart.initialX = A_anchor_world.x - B_anchor_rot.x;
+      attachB.bodyPart.initialY = A_anchor_world.y - B_anchor_rot.y;
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -272,18 +278,33 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       // and that both are added to the world before proceeding,
       // but if one attachment point is empty, don't add the joint.
       // We MUST have a single Box2D body on each body part to connect the joint.
-      if (attachA.bodyPart != null && attachB.bodyPart != null
-        && attachA.complement != null && attachB.complement != null) {
 
-        attachA.bodyPart.addToWorld(world);
-        attachB.bodyPart.addToWorld(world);
+      // We do assume, however, that at least one of the body part's bodies is
+      // in the world already
+      if (attachA.bodyPart !== null && attachB.bodyPart !== null
+        && attachA.complement !== null && attachB.complement !== null) {
+
+        if (attachA.bodyPart.body !== null && attachB.bodyPart.body === null) {
+          this.setInitialBodyValues(attachA, attachB);
+          attachB.bodyPart.addToWorld(world);
+        }
+        else if (attachA.bodyPart.body === null && attachB.bodyPart.body !== null) {
+          this.setInitialBodyValues(attachB, attachA);
+          attachA.bodyPart.addToWorld(world);
+        }
+
         // And now we may proceed.
 
+        // Since the body parts should be positioned at the joint
+        // already, we can use the standard Box2D way of initializing
+        // a joint definition.
+        var world_anchor = attachA.bodyPart.body.GetWorldPoint(attachA.complement.anchorPoint);
         var jointDef = new Box2D.Dynamics.Joints.b2WeldJointDef();
-        jointDef.bodyA = attachA.bodyPart.body;
-        jointDef.bodyB = attachB.bodyPart.body;
-        jointDef.localAnchorA = attachA.complement.anchorPoint;
-        jointDef.localAnchorB = attachB.complement.anchorPoint;
+        jointDef.Initialize(attachA.bodyPart.body
+                          , attachB.bodyPart.body
+                          , world_anchor);
+        jointDef.referenceAngle = this.initialJointData.referenceAngle;
+
 
         var joint = world.CreateJoint(jointDef);
         this.joint = joint;
@@ -348,6 +369,8 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
     */
 
     init: function (initialJointData) {
+      if (typeof(initialJointData) === 'undefined') { initialJointData = {}; }
+
       var attachments = [
         {
           bodyPart: null
@@ -395,11 +418,22 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       , maxMotorTorque: 40
       , referenceAngle: 0
       };
-      for (var key in jointData) {
-        if (typeof(jointData[key]) !== 'undefined' ) { this.initialJointData[key] = jointData[key] };
+      for (var key in initialJointData) {
+        if (typeof(initialJointData[key]) !== 'undefined' ) { this.initialJointData[key] = initialJointData[key] };
       }
 
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
+    }
+  , setInitialBodyValues: function (attachA, attachB) {
+      // Assumes A is in the world and B is not.
+      var A_anchor_world = attachA.bodyPart.body.GetWorldPoint(attachA.complement.anchorPoint);
+      console.log("A_anchor_world");
+      console.log(A_anchor_world);
+      var A_angle = attachA.bodyPart.body.GetAngle();
+      attachB.bodyPart.initialAngle = A_angle + this.initialJointData.referenceAngle;
+      var B_anchor_rot = Utils.Box2D.b2Math.RotV( attachB.complement.anchorPoint, attachB.bodyPart.initialAngle );
+      attachB.bodyPart.initialX = A_anchor_world.x - B_anchor_rot.x;
+      attachB.bodyPart.initialY = A_anchor_world.y - B_anchor_rot.y;
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -415,22 +449,36 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       if (attachA.bodyPart != null && attachB.bodyPart != null
         && attachA.complement != null && attachB.complement != null) {
 
-        attachA.bodyPart.addToWorld(world);
-        attachB.bodyPart.addToWorld(world);
-        // And now we may proceed.
+         if (attachA.bodyPart.body !== null && attachB.bodyPart.body === null) {
+            this.setInitialBodyValues(attachA, attachB);
+            attachB.bodyPart.addToWorld(world);
+          }
+          else if (attachA.bodyPart.body === null && attachB.bodyPart.body !== null) {
+            this.setInitialBodyValues(attachB, attachA);
+            attachA.bodyPart.addToWorld(world);
+          }
 
-        var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
-        jointDef.bodyA = attachA.bodyPart.body;
-        jointDef.bodyB = attachB.bodyPart.body;
-        jointDef.localAnchorA = attachA.complement.anchorPoint;
-        jointDef.localAnchorB = attachB.complement.anchorPoint;
+          // And now we may proceed.
 
-        jointDef.enableMotor = this.initialJointData.enableMotor;
-        jointDef.motorSpeed = this.initialJointData.motorSpeed;
-        jointDef.maxMotorTorque = this.initialJointData.maxMotorTorque;
+          // Since the body parts should be positioned at the joint
+          // already, we can use the standard Box2D way of initializing
+          // a joint definition.
+          var world_anchor = attachA.bodyPart.body.GetWorldPoint(attachA.complement.anchorPoint);
 
-        var joint = world.CreateJoint(jointDef);
-        this.joint = joint;
+          var jointDef = new Box2D.Dynamics.Joints.b2RevoluteJointDef();
+          jointDef.Initialize(attachA.bodyPart.body
+                            , attachB.bodyPart.body
+                            , world_anchor);
+          jointDef.referenceAngle = this.initialJointData.referenceAngle;
+
+          jointDef.enableMotor = this.initialJointData.enableMotor;
+          jointDef.motorSpeed = this.initialJointData.motorSpeed;
+          jointDef.maxMotorTorque = this.initialJointData.maxMotorTorque;
+
+
+          var joint = world.CreateJoint(jointDef);
+          this.joint = joint;
+
       }
 
     }
@@ -463,118 +511,14 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
   });
 
 
-  // TODO: THIS CLASS IS UNFINISHED
-  Body.WheelJoint = Body.BodyPart.extend({
-    // I ported the Box2D wheel joint into our copy of Box2DWeb
-    // from a newer version of Box2D C++. -- Mike
-
-    /*
-      The wheel joint has two attachments, one for the top
-      body and one for the bottom body. The axis of the joint
-      is always defined in terms of the top body (this makes sense
-      if you think of a wheel joint as the suspension of the car,
-      where the axis of the joint would be defined
-      in terms of the chassis).
-
-      0: topBodyPart,
-      1: bottomBodyPart
-
-      Note that attachment points on joints do not need anchor points.
-    */
-
-    init: function (axis) {
-      var b2Vec2 = Box2D.Common.Math.b2Vec2;
-      axis = axis || new b2Vec2(1.0, 0.0); // default
-
-      var attachments = [
-        {
-          bodyPart: null
-        , complement: null
-        }
-      , {
-          bodyPart: null
-        , complement: null
-        }
-        ];
-      var junctions = [];
-      this._super(attachments, junctions);
-
-      this.axis = axis;
-      this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
-    }
-  , addToWorld: function (world) {
-      if (this.world != null) { return; }
-      this.world = world;
-
-      var topAttach = this.attachments[0];
-      var bottomAttach = this.attachments[1];
-
-      // Ensure both body parts attached to the joint are non-null
-      // and that both are added to the world before proceeding,
-      // but if one attachment point is empty, don't add the joint.
-      // We MUST have a single Box2D body on each body part to connect the joint.
-      if (topAttach.bodyPart != null && bottomAttach.bodyPart != null
-        && topAttach.complement != null && bottomAttach.complement != null) {
-
-        topAttach.bodyPart.addToWorld(world);
-        bottomAttach.bodyPart.addToWorld(world);
-        // And now we may proceed.
-
-        var jointDef = new Box2D.Dynamics.Joints.b2WheelJointDef();
-
-        jointDef.bodyA = topAttach.bodyPart.body;
-        jointDef.bodyB = bottomAttach.bodyPart.body;
-        jointDef.localAnchorA = topAttach.complement.anchorPoint;
-        jointDef.localAnchorB = bottomAttach.complement.anchorPoint;
-        jointDef.localAxisA = topAttach.bodyPart.body.GetLocalVector(this.axis);
-
-        //jointDef.frequencyHz = 0.0;
-        //jointDef.dampingRatio = 1.0;
-
-        var joint = world.CreateJoint(jointDef);
-
-        this.joint = joint;
-
-
-      }
-
-    }
-  , addToStage: function (stage, METER) {
-      if (this.stage != null) { return; }
-      this.stage = stage;
-
-      var topAttach = this.attachments[0];
-      var bottomAttach = this.attachments[1];
-      // As with addToWorld(world), both body parts must be properly
-      // attached to this joint in order for us to allow traversal
-      // of the attachment graph. Even though the complement attachments
-      // are not strictly necessary for adding anything to the stage,
-      // we requrie them anyway so it is immediately apparent that
-      // something is wrong when supposedly connected body parts
-      // don't show up in the renderer.
-      if (topAttach.bodyPart != null && bottomAttach.bodyPart != null
-        && topAttach.complement != null && bottomAttach.complement != null) {
-        topAttach.bodyPart.addToStage(stage, METER);
-        topAttach.bodyPart.addToStage(stage, METER);
-        // TODO: For now, we don't add joints to the stage for rendering.
-        //       We might choose to do so in the future, but it looks like
-        //       the data to draw them needs to be derived from the attached
-        //       Box2D bodies.
-      }
-    }
-  , data: function () {
-      throw "Joints do not contain render data.";
-    }
-  });
-
 
 // ----------------------------------------------------------------------------
 // Default BodyParts: Common Appendages
 // ----------------------------------------------------------------------------
 
   Body.Wheel = Body.BodyPart.extend({
-    init: function (radius, groupIndex) {
-      if (typeof(groupIndex) === 'undefined') { groupIndex = 0; }
+    init: function (radius, initialAngle, groupIndex) {
+      if (typeof(initialAngle) === 'undefined') { initialAngle = 0; }
       /*
         The wheel has a single attachment point at its center.
       */
@@ -587,11 +531,13 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       this._super(attachments, [], groupIndex);
 
       this.radius = radius;
+      this.initialAngle = initialAngle;
 
       this.body = null;
       this.graphics = null;
     }
   , addToWorld: function (world) {
+    console.log("wheel add to world");
       if (this.world != null) { return; }
 
       this.world = world;
@@ -609,7 +555,17 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       var body = world.CreateBody(bodyDef);
       body.CreateFixture(circleFixture);
 
+      // this.initialX = 3;
+      // this.initialY = 3;
+      if (this.initialX !== null && this.initialY !== null) {
+        var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);
+        body.SetPosition(pos);
+      }
+      body.SetAngle(this.initialAngle);
+
       this.body = body;
+
+
 
       // Add any not-yet-added attached body parts to the world as well.
       this.attachments.forEach(function (attachment) {
@@ -628,9 +584,6 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       graphics.beginFill(0xFFCCFF, 1);
       graphics.drawCircle(0, 0, this.radius * METER);
       graphics.endFill();
-
-      // Center Pivot
-      //graphics.pivot = new PIXI.Point(this.width * METER/2, this.height * METER/2);
 
       this.graphics = graphics;
 
@@ -664,7 +617,8 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
   */
 
   Body.BoxTorso = Body.BodyPart.extend({
-    init: function (initialX, initialY, width, height, groupIndex) {
+    init: function (initialX, initialY, width, height, initialAngle, groupIndex) {
+      if (typeof(initialAngle) === 'undefined') { initialAngle = 0; }
       /*
         The BoxTorso has attachment points at each corner and
         at the midpoints of each side.
@@ -732,6 +686,8 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
 
       this.initialX = initialX;
       this.initialY = initialY;
+      this.initialAngle = initialAngle;
+
       this.width = width;
       this.height = height;
 
@@ -759,6 +715,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
 
       var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);
       body.SetPosition(pos);
+      body.SetAngle(this.initialAngle);
 
       this.body = body;
 
