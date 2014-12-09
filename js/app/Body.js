@@ -25,9 +25,9 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
    *  when it is first initialized:
    *
    *  {
-   *    anchorPoint: new Box2D.b2Vec2(x, y),
-   *    bodyPart: null,
-   *    complement: null
+   *    anchorPoint: new Box2D.b2Vec2(x, y)
+   *  , bodyPart: null
+   *  , complement: null
    *  }
    *
    *  The anchor point is the physical location of
@@ -52,6 +52,66 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
 
    * junctions
    *  An array of junctions that interface with the body part.
+
+   * initialX
+   *  See below.
+
+   * initialY
+   *  See below.
+
+   * initialAngle
+   *  See below.
+
+   * -----
+   *  The initial position and angle values are applied to the Box2D body
+   *  immediately after the Box2D body is added to the Box2D world.
+   *  They are null (or 0, in the case of initialAngle) by default,
+   *  but if set, certain joints will try to use them to extrapolate the
+   *  positions of connected body parts.
+   *  The extrapolation process is described below in general for a
+   *  joint with an initial reference angle, but you should note that certain
+   *  joints may clamp the angle within their limits if limits are set,
+   *  etc, depending on the joint.
+   *
+   *  Position Extrapolation Process:
+   *
+   *  Given two body parts A and B, connected by a joint body part J at
+   *  attachment points attachA and attachB, respectively:
+   *
+   *  IMPORTANT:
+   *  It is assumed that creatures are always added through the world
+   *  through a body part represented by a Box2D body, and not through
+   *  a joint.
+   *
+   *  // A function to set up the initialX, initialY, and initialAngle
+   *  // properties of the next body part based on the body part
+   *  // already added to the world. This should be defined inside
+   *  // the scope of the addToWorld method on a given joint,
+   *  // so that joints can be flexible with how they position
+   *  // attached body parts and so that it can access the defaults
+   *  // defined for that joint. You should use .bind() when you call
+   *  // it to ensure that `this` is set to the calling body part that
+   *  // represents a joint.
+   *  // Assumes A is in the world, and B is not in the world.
+   *  function SetUpInitialValues(A, A_attachment
+   *                            , B, B_attachment) {
+   *    v = A.body.GetWorldVector(A_attachment.anchorPoint)
+   *    B.initialAngle = nextPart.initialAngle + J.initialReferenceAngle
+   *    B_anchor_rot = B_attachment.anchorPoint
+   *    B.initialX = v.x -
+   *  }
+   *
+   *  // Detect the bodyPart not yet added to the world
+   *  If A.body is not null and B.body is null:
+   *    // the reference angle of the joint is applied to
+   *    // the initial angle of B
+   *    B.initialAngle = B.initialAngle + J.referenceAngle
+   *    // the location of
+   *  Else:
+   *    Both joints are already in the world, so assume that
+   *    they are already placed as intended and just create
+   *    the joint.
+   * -----
 
    * world
    *  The Box2D world object that contains this body part.
@@ -498,6 +558,7 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
       var attachments = [{
           anchorPoint: new b2Vec2(0, 0)
         , bodyPart:    null
+        , complement: null
         }];
       this._super(attachments, [], groupIndex);
 
@@ -603,34 +664,42 @@ define(["lib/Box2dWeb_dev", "lib/pixi", "lib/Class", "app/Mind"], function (Box2
         {
           anchorPoint: new b2Vec2(-width/2, -height/2) // Top-Left Corner
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(0, -height/2) // Top Midpoint
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(width/2, -height/2) // Top-Right Corner
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(width/2, 0) // Right Midpoint
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(width/2, height/2) // Bottom-Right Corner
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(0, height/2) // Bottom Midpoint
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(-width/2, height/2) // Bottom-Left Corner
         , bodyPart:    null
+        , complement: null
         }
       , {
           anchorPoint: new b2Vec2(-width/2, 0) // Left Midpoint
         , bodyPart:    null
+        , complement: null
         }
       ];
 

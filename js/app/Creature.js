@@ -15,13 +15,13 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
 
       this.torso = new Body.BoxTorso(10, 10, 4, 1, groupIndex);
 
-      this.leftWheel = new Body.Wheel(1, groupIndex);
+      this.leftWheel = new Body.Wheel(0.7, groupIndex);
       this.leftWheelJoint = new Body.RevoluteJoint(true, 0, 75); // default axis is < 1.0, 0.0 >
       this.torso.attach(6, this.leftWheelJoint, 0);
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
-      this.rightWheel = new Body.Wheel(1, groupIndex);
-      this.rightWheelJoint = new Body.RevoluteJoint(false); // default axis is < 1.0, 0.0 >
+      this.rightWheel = new Body.Wheel(0.7, groupIndex);
+      this.rightWheelJoint = new Body.RevoluteJoint(true, 0, 3); // default axis is < 1.0, 0.0 >
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
 

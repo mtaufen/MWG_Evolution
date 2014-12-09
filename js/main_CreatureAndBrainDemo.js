@@ -25,10 +25,11 @@ require([
       "jquery"
     , "lib/Box2dWeb_dev"
     , "lib/pixi"
+    , "lib/Utils"
     , "app/Mind"
     , "app/Body"
     , "app/Creature"
-    ], function ($, Box2D, PIXI, Mind, Body, Creature) {
+    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature) {
 
 
     // console.log($);
