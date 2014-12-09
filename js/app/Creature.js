@@ -13,19 +13,21 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
 
       var groupIndex = -1; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(10, 10, 4, 1, groupIndex);
+      this.torso = new Body.BoxTorso(10, 10, 4, 1, 0, groupIndex);
 
-      this.leftWheel = new Body.Wheel(1, groupIndex);
-      this.leftWheelJoint = new Body.RevoluteJoint(true, 0, 75); // default axis is < 1.0, 0.0 >
+      this.leftWheel = new Body.Wheel(0.7, 0, groupIndex);
+      this.leftWheelJoint = new Body.RevoluteJoint({
+        enableMotor: true
+      , motorSpeed: 0
+      , maxMotorTorque: 75
+      });
       this.torso.attach(6, this.leftWheelJoint, 0);
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
-      this.rightWheel = new Body.Wheel(1, groupIndex);
-      this.rightWheelJoint = new Body.RevoluteJoint(false); // default axis is < 1.0, 0.0 >
+      this.rightWheel = new Body.Wheel(0.7, groupIndex);
+      this.rightWheelJoint = new Body.RevoluteJoint(true, 0, 3); // default axis is < 1.0, 0.0 >
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
-
-
 
 
       // Neuron to translate that input into output on the 3-junction on the left wheel joint.
@@ -46,7 +48,6 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
       });
       speedControllerJunction.synapse(this.motorNeuron.dendrites[0]);
 
-
       // Record the junctions that the brain is allowed to use.
       var afferents = [speedControllerJunction];
       var efferents = [leftWheelJunction3];
@@ -59,6 +60,8 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
       // world for this creature, since every body
       // part is connected.
       this.torso.addToWorld(world);
+
+      //this.rightWheel.addToWorld(world);
     }
   , addToStage: function (stage, METER) {
       // Similarly, we only need to add one
