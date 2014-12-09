@@ -13,15 +13,15 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
 
       var groupIndex = -1; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(4, 4, 4, 1, groupIndex);
+      this.torso = new Body.BoxTorso(10, 10, 4, 1, groupIndex);
 
       this.leftWheel = new Body.Wheel(1, groupIndex);
-      this.leftWheelJoint = new Body.RevoluteJoint(true, 1000, 7500); // default axis is < 1.0, 0.0 >
+      this.leftWheelJoint = new Body.RevoluteJoint(true, 0, 75); // default axis is < 1.0, 0.0 >
       this.torso.attach(6, this.leftWheelJoint, 0);
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
       this.rightWheel = new Body.Wheel(1, groupIndex);
-      this.rightWheelJoint = new Body.RevoluteJoint(); // default axis is < 1.0, 0.0 >
+      this.rightWheelJoint = new Body.RevoluteJoint(false); // default axis is < 1.0, 0.0 >
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
 
@@ -42,14 +42,14 @@ define(["lib/Class", "app/Mind", "app/Body"], function (Class, Mind, Body) {
       // We are using the speedControllerJunction to fake
       // environmental input.
       var speedControllerJunction = new Mind.AfferentJunction(null, function () {
-        return 1000;
+        return 10;
       });
       speedControllerJunction.synapse(this.motorNeuron.dendrites[0]);
 
 
       // Record the junctions that the brain is allowed to use.
       var afferents = [speedControllerJunction];
-      var efferents = [this.leftWheelJoint.junctions[3]];
+      var efferents = [leftWheelJunction3];
       // Brain impulses afferents, then impulses efferents
       this.brain = new Mind.Brain(afferents, efferents);
 
