@@ -6,7 +6,9 @@ define([
   , "app/Body/WeldJoint"
   , "app/Body/RevoluteJoint"
   , "app/Body/Eye"
-  ], function (BodyPart, BoxTorso, Wheel, WeldJoint, RevoluteJoint, Eye) {
+  , "app/Body/Vertebra"
+  , "app/Body/Tail"
+  ], function (BodyPart, BoxTorso, Wheel, WeldJoint, RevoluteJoint, Eye, Vertebra, Tail) {
 
   var Body = {};
 
@@ -16,6 +18,9 @@ define([
   Body.WeldJoint     = WeldJoint;
   Body.RevoluteJoint = RevoluteJoint;
   Body.Eye           = Eye;
+  Body.Vertebra      = Vertebra;
+  Body.Tail          = Tail;
+
 
   return Body;
 });
