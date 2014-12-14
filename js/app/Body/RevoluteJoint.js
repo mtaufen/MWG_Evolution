@@ -45,6 +45,7 @@ define([
     init: function (initialJointData) {
       if (typeof(initialJointData) === 'undefined') { initialJointData = {}; }
 
+
       var attachments = [
         {
           bodyPart: null
@@ -97,6 +98,8 @@ define([
       }
 
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
+
+      this.name = "RevoluteJoint";
     }
   , setInitialBodyValues: function (attachA, attachB) {
       // Assumes A is in the world and B is not.

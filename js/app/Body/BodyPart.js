@@ -180,14 +180,38 @@ define(["lib/Class"], function (Class) {
 
       this.world = null;
       this.stage = null;
+
+      this.name = "BodyPart";
     }
   , attach: function (this_attach_index, other_bodyPart, other_attach_index) {
       var local = this.attachments[this_attach_index];
       var other = other_bodyPart.attachments[other_attach_index];
 
+      /*
+         More complex body parts can set up body part forwarding for
+         each attachment point. To set up body part forwarding, add a
+         bodyPartForwarding array as a property of your custom
+         body part object. The array should contain references to
+         body parts that correspond to attachment points by index.
+
+         The array is allowed to be discontinuous if, for example,
+         you wanted to forward body parts for only attachment points
+         0 and 15.
+
+         If you are setting up forwarding, you should also make sure that
+         the attachment point for a forwarded index on the forwarding body
+         part is set to an attachment point on the corresponding, forwarded-to
+         body part. The attach() function will look for attachment points on
+         the body part you call it on and on the other body part you pass as
+         an argument.
+      */
+
+      var localForwards = this.bodyPartForwarding || [];
+      var otherForwards = other_bodyPart.bodyPartForwarding || [];
+
       // Set body part references.
-      local.bodyPart = other_bodyPart;
-      other.bodyPart = this;
+      local.bodyPart = otherForwards[other_attach_index] || other_bodyPart;
+      other.bodyPart = localForwards[this_attach_index] || this;
 
       // Set complement references.
       local.complement = other;

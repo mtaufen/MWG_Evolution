@@ -44,6 +44,8 @@ define([
       this.graphics = null;
 
       this.wall = null; // the wall object
+
+      this.name = "Eye";
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -55,7 +57,7 @@ define([
 
       var polyFixture = new Box2D.Dynamics.b2FixtureDef();
       polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-      polyFixture.density = 0.01;
+      polyFixture.density = 0;
       polyFixture.friction = 0;
       polyFixture.shape.SetAsBox(this.width/2, this.height/2);
       polyFixture.filter.groupIndex = this.groupIndex;

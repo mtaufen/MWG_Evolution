@@ -6,6 +6,7 @@ define([ "app/Body/BodyPart"
 
   var Vertebra = BodyPart.extend({
     init: function (data) {
+
       /*
         The Vertebra has attachment points at the top and bottom.
 
@@ -14,31 +15,15 @@ define([ "app/Body/BodyPart"
         1: Top
 
         The data argument can be used to set the following values:
-        this.props.width
-        this.props.height
-        this.props.density
-        this.props.friction
+        width
+        height
+        density
+        friction
 
       */
-      var b2Vec2 = Box2D.Common.Math.b2Vec2;
-      var attachments = [
-        {
-          anchorPoint: new b2Vec2(0, height/2) // Bottom
-        , bodyPart:    null
-        , complement: null
-        }
-      , {
-          anchorPoint: new b2Vec2(0, -height/2) // Top
-        , bodyPart:    null
-        , complement: null
-        }
-      ];
-
-      this._super(attachments, [], data.groupIndex);
-
 
       // Initialize properties:
-      if ( typeof(data) !== 'undefined' ) { data = {}; }
+      if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
            width: 0.1
       ,   height: 0.5
@@ -53,6 +38,23 @@ define([ "app/Body/BodyPart"
       this.body = null;
       this.graphics = null;
 
+      var b2Vec2 = Box2D.Common.Math.b2Vec2;
+      var attachments = [
+        {
+          anchorPoint: new b2Vec2(0, this.props.height/2) // Bottom
+        , bodyPart:    null
+        , complement: null
+        }
+      , {
+          anchorPoint: new b2Vec2(0, -this.props.height/2) // Top
+        , bodyPart:    null
+        , complement: null
+        }
+      ];
+
+      this._super(attachments, [], this.props.groupIndex);
+
+      this.name = "Vertebra";
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -78,6 +80,8 @@ define([ "app/Body/BodyPart"
 
       this.body = body;
 
+
+
       // Add any not-yet-added attached body parts to the world as well.
       this.attachments.forEach(function (attachment) {
         if (attachment.bodyPart != null) {
@@ -94,11 +98,11 @@ define([ "app/Body/BodyPart"
 
       // Fill
       graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawRect(0, 0, this.width * METER, this.height * METER);
+      graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
       graphics.endFill();
 
       // Center Pivot
-      graphics.pivot = new PIXI.Point(this.width * METER/2, this.height * METER/2);
+      graphics.pivot = new PIXI.Point(this.props.width * METER/2, this.props.height * METER/2);
 
       this.graphics = graphics;
 
@@ -119,6 +123,6 @@ define([ "app/Body/BodyPart"
     }
   });
 
-  return BoxTorso;
+  return Vertebra;
 
 });

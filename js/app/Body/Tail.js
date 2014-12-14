@@ -36,13 +36,13 @@ define([
       this._super([], [], data.groupIndex);
 
       // Initialize properties:
-      if ( typeof(data) !== 'undefined' ) { data = {}; }
+      if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
         numVertebrae: 2
       , vertebraWidth: 0.1
       , vertebraHeight: 0.5
       , rootDensity: 1
-      , rootMaxTorque: 7500
+      , rootMaxTorque: 75000
       , densityReductionFactor: 1
       , torqueReductionFactor: 1
       , friction: 0.5
@@ -59,9 +59,11 @@ define([
         var vertebra = new Vertebra({
           width: this.props.vertebraWidth
         , height: this.props.vertebraHeight
-        , density: this.props.rootDensity * Math.pow(densityReductionFactor, i)
+        , density: this.props.rootDensity * Math.pow(this.props.densityReductionFactor, i)
         , friction: this.props.friction
+        , groupIndex: this.props.groupIndex
         });
+        this.vertebrae[i] = vertebra;
       }
 
       // Initialize joints:
@@ -70,8 +72,9 @@ define([
         var joint = new RevoluteJoint({
           enableMotor: true
         , motorSpeed: 0
-        , maxMotorTorque: this.props.rootMaxTorque * Math.pow(torqueReductionFactor, i)
-        })
+        , maxMotorTorque: this.props.rootMaxTorque * Math.pow(this.props.torqueReductionFactor, i)
+        });
+        this.joints[i] = joint;
       }
 
       // Attach parts:
@@ -83,14 +86,17 @@ define([
       }
 
       // Set attachment point that can be used to attach the tail to other body parts
-      // This effectively makes
+      // This makes the second attachment point on the root joint
+      // the attachment point for the tail.
       this.attachments[0] = this.joints[0].attachments[1];
+      // Set up body part forwarding so the joint will be associated with the attachment
+      // point on whatever body part we decide to attach the tail to.
+      this.bodyPartForwarding = [];
+      this.bodyPartForwarding[0] = this.joints[0];
 
 
+      this.name = "Tail";
     }
-  , attach: function (this_attach_index, other_bodyPart, other_attach_index) {
-
-  }
   , addToWorld: function (world) {
       this.vertebrae[0].addToWorld(world); // Start chain reaction by adding root to the world.
     }
