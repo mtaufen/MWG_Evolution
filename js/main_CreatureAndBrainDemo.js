@@ -29,7 +29,8 @@ require([
     , "app/Mind"
     , "app/Body"
     , "app/Creature"
-    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature) {
+    , "app/Wall"
+    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall) {
 
 
     // console.log($);
@@ -38,6 +39,7 @@ require([
     // console.log(PhysicsBox);
     // console.log(Mind);
     // console.log(Body);
+    console.log(Wall);
 
 // ----------
 // Box2D Init
@@ -87,8 +89,12 @@ require([
 
     // --------------- Assert: Basic World Is Initialized -------------------
 
-    // Create a creature and add it to the world.
-    var testCreature = new Creature.Car();
+
+    // Add test objects
+    var testWall = new Wall.BasicWall(18, 7, 3, 15);
+    testWall.addToWorld(world);
+
+    var testCreature = new Creature.Car(4, 10, testWall);
     testCreature.addToWorld(world);
 
     //---------------------------------------------------
@@ -218,8 +224,9 @@ require([
         document.body.appendChild(renderer.view);
 
         testCreature.addToStage(stage, METER);
+        testWall.addToStage(stage, METER);
 
-        var entityData = testCreature.bodyPartData();
+        var entityData = testCreature.bodyPartData().concat( testWall.data() );
 
         requestAnimFrame( animate );
 
