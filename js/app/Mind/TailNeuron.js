@@ -23,44 +23,57 @@ define([
 
 
         Information you can pass via the data parameter:
-        maxMotorSpeeds // max motor speed for each key position
+        maxMotorSpeeds // array of max motor speed for rest (0) and attack (1) phases
         targetPosition // will be set as the initial target position
         keyPositions // a list of key positions that can be used as targets
         distanceThreshold // neuron triggers an attack when inside this threshold
+        timePerPosition // ms time spent before position is toggled during attack phase
 
         Note: A "key position" is a list of target angles that match up with the joint indices
 
         TODO: Eventually we add a targetMovementPattern that describes a manipulation of the targetPosition
         and a patternRate or something that determines the rate the pattern is cycled through
       */
-
+      var d = new Date();
       var distanceDendrite = function ( dist ) {
         if (dist > this.props.distanceThreshold) { // Not yet in range
+          this.phase = 0; // motor speeds differ depending on if we are in the rest (0) or attack (1) phase
           this.props.targetPosition = 0;
         }
         else {
-          this.props.targetPosition = 1;
+          // toggle target position if enough time has passed
+          this.phase = 1;
+          var time = d.getTime();
+          if (time - this.lastTime > this.props.timePerPosition) {
+            var t = this.props.targetPosition;
+            this.props.targetPosition = (t === 0) ? 1 : 0;
+            this.lastTime = time;
+          }
         }
-        if (this.computeMotorSpeeds()) {
-          // compute motor speeds returns false if there were problems
+
+        if (this.computeMotorSpeeds()) { // compute motor speeds returns false if there were problems
           this.impulse(); // propagate motor speeds
         }
 
       }
+
       var dendrites = [ distanceDendrite ];
       this._super(dendrites); // ensures dendrites get `this` bound to this neuron
 
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
-        maxMotorSpeeds: [2, 4] // max speeds for each position
+        maxMotorSpeeds: [1, 10]
       , targetPosition: 0
       , keyPositions: null
-      , distanceThreshold: 2 // meters
+      , distanceThreshold: 2
+      , timePerPosition: 100
       };
       for (var key in data) {
         if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
       }
+
+      this.lastTime = 0;
 
     }
   , linkToTail: function (tail) {
@@ -124,7 +137,7 @@ define([
         // motor speed is the fraction of the circle between the current angle
         // and the desired angle, multiplied by the maximum motor speed
         var turnFraction = angle / 2*Math.PI;
-        this.motorSpeeds[i] = this.props.maxMotorSpeed * turnFraction;
+        this.motorSpeeds[i] = this.props.maxMotorSpeeds[this.phase] * turnFraction;
       }
 
       return true;
