@@ -35,10 +35,9 @@ define([ "app/Body/BodyPart"
       ];
 
       this._super(attachments, [], data.groupIndex);
-      this.initProperties(data);
 
-    }
-  , initProperties: function (data) {
+
+      // Initialize properties:
       if ( typeof(data) !== 'undefined' ) { data = {}; }
       this.props = {
            width: 0.1
