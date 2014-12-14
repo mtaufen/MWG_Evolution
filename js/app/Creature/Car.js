@@ -7,12 +7,15 @@ define([
   /* This is a demo creature class that drives around like a car.
   */
   var Car = Class.extend({
-    init: function () {
+    init: function (initialTorsoX, initialTorsoY, targetWall) {
+      if (typeof initialTorsoX == "undefined") { initialTorsoX = 10; }
+      if (typeof initialTorsoY == "undefined") { initialTorsoY = 10; }
+
       var b2Vec2 = Box2D.Common.Math.b2Vec2;
 
       var groupIndex = -1; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(10, 10, 4, 1, 0, groupIndex);
+      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 4, 1, 0, groupIndex);
 
       this.leftWheel = new Body.Wheel(0.7, 0, groupIndex);
       this.leftWheelJoint = new Body.RevoluteJoint({
@@ -27,6 +30,14 @@ define([
       this.rightWheelJoint = new Body.RevoluteJoint(true, 0, 3); // default axis is < 1.0, 0.0 >
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
+
+      console.log(Body);
+      this.eye = new Body.Eye(0.2, 0.2, groupIndex);
+      this.eye.wall = targetWall;
+      this.eyeJoint = new Body.WeldJoint();
+      this.torso.attach(3, this.eyeJoint, 0);
+      this.eye.attach(0, this.eyeJoint, 1);
+
 
 
       // Neuron to translate that input into output on the 3-junction on the left wheel joint.
@@ -47,8 +58,10 @@ define([
       });
       speedControllerJunction.synapse(this.motorNeuron.dendrites[0]);
 
+      var eyeJunction = this.eye.junctions[0];
+
       // Record the junctions that the brain is allowed to use.
-      var afferents = [speedControllerJunction];
+      var afferents = [speedControllerJunction, eyeJunction];
       var efferents = [leftWheelJunction3];
       // Brain impulses afferents, then impulses efferents
       this.brain = new Mind.Brain(afferents, efferents);
