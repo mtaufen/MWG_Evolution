@@ -52,6 +52,11 @@ define(["lib/Class"], function (Class) {
       // original dendrite anyway). There is also the matter of memory
       // efficiency to consider here, as .bind() returns a new function
       // every time it is called.
+      // Further note that we may need this because there are some
+      // cases where dendrites are generated after construction,
+      // like the TailNeuron for instance. We should decide whether
+      // to enforce this here or leave the responsibility to whoever
+      // programs a neuron.
       this.dendrites.push(dendrite.bind(dendrite_owner));
     }
 

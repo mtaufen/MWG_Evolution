@@ -27,7 +27,7 @@ define(["lib/Class"], function (Class) {
    * pushImpulse(value)
    *  Pushes the value onto the impulse queue.
    *  Connect this function to a neuron by using the
-   *  Neuron.connect(axon_index, dendrite) method and
+   *  Neuron.synapse(axon_index, dendrite, dendrite_owner) method and
    *  treating pushImpulse as the dendrite.
    *  Remember to .bind() pushImpulse so that this
    *  refers to the correct junction when it is called.

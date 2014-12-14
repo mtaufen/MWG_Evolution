@@ -47,8 +47,18 @@ define([
         groupIndex: groupIndex
       });
 
-      //this.tail.attach()
+      this.tailNeuron = new Mind.TailNeuron({
+        // options
+      });
+      this.tailNeuron.linkToTail(this.tail);
+      this.tailNeuron.linkToEye(this.eye);
       this.torso.attach(1, this.tail, 0);
+      var tailJointAngleJunctions = this.tail.joints.map(function (joint) {
+        return joint.junctions[6];
+      });
+      var tailJointSpeedJunctions = this.tail.joints.map(function (joint) {
+        return joint.junctions[3];
+      });
 
       // Neuron to translate that input into output on the 3-junction on the left wheel joint.
       this.motorNeuron = new Mind.Neuron([
@@ -71,8 +81,10 @@ define([
       var eyeJunction = this.eye.junctions[0];
 
       // Record the junctions that the brain is allowed to use.
-      var afferents = [speedControllerJunction, eyeJunction];
-      var efferents = [leftWheelJunction3];
+      var afferents = [   speedControllerJunction
+                        , eyeJunction
+                      ].concat(tailJointAngleJunctions);
+      var efferents = [leftWheelJunction3].concat(tailJointSpeedJunctions);
       // Brain impulses afferents, then impulses efferents
       this.brain = new Mind.Brain(afferents, efferents);
 

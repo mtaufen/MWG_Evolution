@@ -31,6 +31,7 @@ define([
       3: Efferent, impulse total determines the speed of the motor.
       4: Afferent, propagates the torque of the motor
       5: Efferent, impulse total determines the max motor torque.
+      6: Afferent, propagates the angle of the joint
 
     The initialJointData argument is an object containing information used
     to set up the joint, but every parameter is optional (defaults
@@ -82,6 +83,10 @@ define([
           this.impulseQueue.forEach(function (value) { sum += value; })
           this.bodyPart.joint.SetMaxMotorTorque(sum);
         })
+      , new Mind.AfferentJunction(this, function () {
+          return this.bodyPart.joint.GetJointAngle();
+        })
+
 
       ];
       this._super(attachments, junctions);
@@ -153,8 +158,6 @@ define([
 
           var joint = world.CreateJoint(jointDef);
           this.joint = joint;
-
-          console.log(this);
 
       }
 

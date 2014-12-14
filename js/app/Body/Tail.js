@@ -38,7 +38,7 @@ define([
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
-        numVertebrae: 2
+        numVertebrae: 5
       , rootWidth: 0.2
       , rootHeight: 1
       , rootDensity: 1

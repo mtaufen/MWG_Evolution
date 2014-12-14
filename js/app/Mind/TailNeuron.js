@@ -4,13 +4,16 @@ define([
 
       , "lib/Box2dWeb_dev"
       , "lib/pixi"
-       ], function (BodyPart, Neuron, Box2D, PIXI) {
+      , "lib/Utils"
+       ], function (Neuron, Box2D, PIXI, Utils) {
 
   var TailNeuron = Neuron.extend({
     init: function (data) {
       /*
         dendrites:
           0: distance from eye to wall
+          1: array of dendrites, each of which corresponds by index to a joint, and is designed
+             to recieve that joint's current angle
         axons:
           i: motor speed for joint at index i
 
@@ -20,7 +23,7 @@ define([
 
 
         Information you can pass via the data parameter:
-        maxMotorSpeed
+        maxMotorSpeeds // max motor speed for each key position
         targetPosition // will be set as the initial target position
         keyPositions // a list of key positions that can be used as targets
         distanceThreshold // neuron triggers an attack when inside this threshold
@@ -32,13 +35,17 @@ define([
       */
 
       var distanceDendrite = function ( dist ) {
-        if (dist > this.distanceThreshold) { // Not yet in range
-          this.targetPosition = 0;
+        if (dist > this.props.distanceThreshold) { // Not yet in range
+          this.props.targetPosition = 0;
         }
         else {
-          this.targetPosition = 1;
+          this.props.targetPosition = 1;
         }
-        this.impulse(); // update motor speeds
+        if (this.computeMotorSpeeds()) {
+          // compute motor speeds returns false if there were problems
+          this.impulse(); // propagate motor speeds
+        }
+
       }
       var dendrites = [ distanceDendrite ];
       this._super(dendrites); // ensures dendrites get `this` bound to this neuron
@@ -46,33 +53,47 @@ define([
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
-        maxMotorSpeed: 200
+        maxMotorSpeeds: [2, 4] // max speeds for each position
       , targetPosition: 0
       , keyPositions: null
       , distanceThreshold: 2 // meters
       };
-
       for (var key in data) {
         if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
       }
 
-      this.motorSpeeds = null;
-
     }
   , linkToTail: function (tail) {
+      var dendriteGenerator = function (jointIndex) {
+        return function (angle) {
+          this.currentJointAngles[jointIndex] = angle;
+        };
+      };
+
+      this.currentJointAngles = []; // ensure array where currentJointAngles will be stored exists
+
+      this.dendrites[1] = []; // ensure dendrites array for dendrite 1 exists
       tail.joints.forEach(function (joint, i) {
+        // connect input
+        // generate an angle dendrite for this neuron and link the joint's
+        // angle-propagating afferent junction to that dendrite
+        this.dendrites[1][i] = dendriteGenerator(i);
+        joint.junctions[6].synapse(this.dendrites[1][i], this);
+
+        // connect output
         this.axons[i] = this.axons[i] || []; // ensure that the axon exists
-        this.synapse(i, joint.junctions[3], joint); // link the axon to the junction
-      });
+        this.synapse(i, joint.junctions[3].pushImpulse, joint.junctions[3]); // link the axon to the junction
+      }.bind(this));
 
       // Set default key positions if none were set yet
-      if (this.keyPositions == null) {
+      if (this.props.keyPositions === null) {
         var resting = [];
         var attacking = [];
         for (var i = 0; i < tail.joints.length; ++i) {
           resting[i] = 0;
-          attacking[i] = ( (Math.PI/180) * (45/tail.joints.length) );
+          attacking[i] = ( (Math.PI/180) * (-45/tail.joints.length) );
         }
+        this.props.keyPositions = [resting, attacking];
       }
 
       // Set default motor speeds (0 for each motor)
@@ -84,13 +105,36 @@ define([
   , linkToEye: function (eye) {
       eye.junctions[0].synapse(this.dendrites[0], this);
     }
-  , computeMotorSpeeds: function () {
-ss
+  , computeMotorSpeeds: function () { // return true if the speeds were all calculated correctly
+
+      if (this.currentJointAngles.length < this.axons.length) {
+        return false;
+      }
+
+      for (var i = 0; i < this.axons.length; ++i) { // only need to compute speeds that are actually output
+        // we find the shortest rotation to achieve the target angle
+
+        // We normalize all angles to within 2π radians, since
+        // the angles are unbounded in Box2D.
+        var curAngle = Utils.Math.signedRemainder(this.currentJointAngles[i], 2*Math.PI);
+        var targetAngle = Utils.Math.signedRemainder(this.props.keyPositions[this.props.targetPosition][i], 2*Math.PI);
+        var angle = targetAngle - curAngle;
+        angle = Utils.Math.signedRemainder( (angle + Math.PI), (2*Math.PI) ) - Math.PI;
+
+        // motor speed is the fraction of the circle between the current angle
+        // and the desired angle, multiplied by the maximum motor speed
+        var turnFraction = angle / 2*Math.PI;
+        this.motorSpeeds[i] = this.props.maxMotorSpeed * turnFraction;
+      }
+
+      return true;
     }
   , impulse: function () {
       // propagate motor speeds to joints through associated axons
       for (var i = 0; i < this.axons.length; ++i) {
-        this._super(i, this.motorSpeeds[i]); // superclass implementation of impulse(axon_index, value)
+        if (this.motorSpeeds[i] != NaN) {
+          this._super(i, this.motorSpeeds[i]); // superclass implementation of impulse(axon_index, value)
+        }
       }
 
     }
