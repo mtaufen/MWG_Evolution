@@ -1,51 +1,60 @@
 "use strict";
-define([
-        "app/Body/BodyPart"
-      , "app/Mind"
+define([ "app/Body/BodyPart"
+       , "lib/Box2dWeb_dev"
+       , "lib/pixi"
+       ], function (BodyPart, Box2D, PIXI) {
 
-      , "lib/Box2dWeb_dev"
-      , "lib/pixi"
-       ], function (BodyPart, Mind, Box2D, PIXI) {
+  var Vertebra = BodyPart.extend({
+    init: function (data) {
 
-  var Eye = BodyPart.extend({
-    init: function(width, height, groupIndex) {
       /*
-        The eye has one attachment point by default.
-        0: Left-side Midpoint
+        The Vertebra has attachment points at the top and bottom.
+
+        The attachment indices proceed clockwise from the top-left corner:
+        0: Bottom
+        1: Top
+
+        The data argument can be used to set the following values:
+        width
+        height
+        density
+        friction
+
       */
-      var b2Vec2 = Box2D.Common.Math.b2Vec2;
-      var attachments = [
-        {
-          anchorPoint: new b2Vec2(-width/2, 0)
-        , bodyPart: null
-        , complement: null
-        }
-      ];
 
-      var junctions = [
-        new Mind.AfferentJunction(this, function () {
-          if (this.bodyPart.wall != null) {
-            var rightEdge = this.bodyPart.body.GetWorldPoint( new b2Vec2(width/2, 0) );
-            var wallLeftEdge = this.bodyPart.wall.body.GetWorldPoint( new b2Vec2(-this.bodyPart.wall.width/2, 0) );
-            var distanceToWall = wallLeftEdge.x - rightEdge.x;
-            return distanceToWall;
-          }
-          return Infinity;
+      // Initialize properties:
+      if ( typeof(data) === 'undefined' ) { data = {}; }
+      this.props = {
+           width: 0.1
+      ,   height: 0.5
+      ,  density: 1.0
+      , friction: 0.5
+      }
 
-        })
-      ];
-
-      this._super(attachments, junctions, groupIndex);
-
-      this.width = width;
-      this.height = height;
+      for (var key in data) {
+        if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
+      }
 
       this.body = null;
       this.graphics = null;
 
-      this.wall = null; // the wall object
+      var b2Vec2 = Box2D.Common.Math.b2Vec2;
+      var attachments = [
+        {
+          anchorPoint: new b2Vec2(0, this.props.height/2) // Bottom
+        , bodyPart:    null
+        , complement: null
+        }
+      , {
+          anchorPoint: new b2Vec2(0, -this.props.height/2) // Top
+        , bodyPart:    null
+        , complement: null
+        }
+      ];
 
-      this.name = "Eye";
+      this._super(attachments, [], this.props.groupIndex);
+
+      this.name = "Vertebra";
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }
@@ -57,9 +66,9 @@ define([
 
       var polyFixture = new Box2D.Dynamics.b2FixtureDef();
       polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-      polyFixture.density = 0;
-      polyFixture.friction = 0;
-      polyFixture.shape.SetAsBox(this.width/2, this.height/2);
+      polyFixture.density = this.props.density;
+      polyFixture.friction = this.props.friction;
+      polyFixture.shape.SetAsBox(this.props.width/2, this.props.height/2);
       polyFixture.filter.groupIndex = this.groupIndex;
 
       var body = world.CreateBody(bodyDef);
@@ -71,14 +80,17 @@ define([
 
       this.body = body;
 
+
+
       // Add any not-yet-added attached body parts to the world as well.
       this.attachments.forEach(function (attachment) {
         if (attachment.bodyPart != null) {
           attachment.bodyPart.addToWorld(world);
         }
       });
+
     }
-    , addToStage: function (stage, METER) {
+  , addToStage: function (stage, METER) {
       if (this.stage != null) { return; }
       this.stage = stage;
 
@@ -86,11 +98,11 @@ define([
 
       // Fill
       graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawRect(0, 0, this.width * METER, this.height * METER);
+      graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
       graphics.endFill();
 
       // Center Pivot
-      graphics.pivot = new PIXI.Point(this.width * METER/2, this.height * METER/2);
+      graphics.pivot = new PIXI.Point(this.props.width * METER/2, this.props.height * METER/2);
 
       this.graphics = graphics;
 
@@ -103,15 +115,14 @@ define([
         }
       });
     }
-    , data: function () {
+  , data: function () {
       return [{
         body: this.body
       , graphics: this.graphics
       }];
     }
-
   });
 
-  return Eye;
+  return Vertebra;
 
 });

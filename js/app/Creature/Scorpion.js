@@ -4,10 +4,12 @@ define([
   , "app/Mind"
   , "app/Body" ], function (Class, Mind, Body) {
 
-  /* This is a demo creature class that drives around like a car.
+  /* This is a creature that drives around like a car, but
+  has a scorpion-like tail to attack with and an eye to measure
+  the distance to the wall.
   */
-  var Car = Class.extend({
-    init: function (initialTorsoX, initialTorsoY) {
+  var Scorpion = Class.extend({
+    init: function (initialTorsoX, initialTorsoY, targetWall) {
       if (typeof initialTorsoX == "undefined") { initialTorsoX = 10; }
       if (typeof initialTorsoY == "undefined") { initialTorsoY = 10; }
 
@@ -35,6 +37,29 @@ define([
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
 
+      this.eye = new Body.Eye(0.2, 0.2, groupIndex);
+      this.eye.wall = targetWall;
+      this.eyeJoint = new Body.WeldJoint();
+      this.torso.attach(3, this.eyeJoint, 0);
+      this.eye.attach(0, this.eyeJoint, 1);
+
+      this.tail = new Body.Tail({
+        groupIndex: groupIndex
+      });
+
+      this.tailNeuron = new Mind.TailNeuron({
+        // options
+      });
+      this.tailNeuron.linkToTail(this.tail);
+      this.tailNeuron.linkToEye(this.eye);
+      this.torso.attach(1, this.tail, 0);
+      var tailJointAngleJunctions = this.tail.joints.map(function (joint) {
+        return joint.junctions[6];
+      });
+      var tailJointSpeedJunctions = this.tail.joints.map(function (joint) {
+        return joint.junctions[3];
+      });
+
       // Neuron to translate that input into output on the 3-junction on the left wheel joint.
       this.motorNeuron = new Mind.Neuron([
         function(desiredSpeed) {
@@ -53,35 +78,32 @@ define([
       });
       speedControllerJunction.synapse(this.motorNeuron.dendrites[0]);
 
+      var eyeJunction = this.eye.junctions[0];
+
       // Record the junctions that the brain is allowed to use.
-      var afferents = [speedControllerJunction];
-      var efferents = [leftWheelJunction3];
+      var afferents = [   speedControllerJunction
+                        , eyeJunction
+                      ].concat(tailJointAngleJunctions);
+      var efferents = [leftWheelJunction3].concat(tailJointSpeedJunctions);
       // Brain impulses afferents, then impulses efferents
       this.brain = new Mind.Brain(afferents, efferents);
 
+      this.name = "Scorpion";
     }
   , addToWorld: function (world) {
-      // We only need to add one body part to the
-      // world for this creature, since every body
-      // part is connected.
       this.torso.addToWorld(world);
-
-      //this.rightWheel.addToWorld(world);
     }
   , addToStage: function (stage, METER) {
-      // Similarly, we only need to add one
-      // body part to the stage.
       this.torso.addToStage(stage, METER);
     }
   , bodyPartData: function () {
-      // TODO: We don't yet include the joint here since joints
-      //       are not yet added to the stage for rendering, so there would
-      //       be no graphics object to draw.
 
       var data = [
                   this.torso.data()
                 , this.leftWheel.data()
                 , this.rightWheel.data()
+                , this.eye.data()
+                , this.tail.data()
                 ];
       return [].concat.apply([], data);
 
@@ -89,5 +111,5 @@ define([
   });
 
 
-  return Car;
+  return Scorpion;
 });

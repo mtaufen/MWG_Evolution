@@ -82,6 +82,7 @@ define([ "app/Body/BodyPart"
       this.body = null;
       this.graphics = null;
 
+      this.name = "BoxTorso";
     }
   , addToWorld: function (world) {
       if (this.world != null) { return; }

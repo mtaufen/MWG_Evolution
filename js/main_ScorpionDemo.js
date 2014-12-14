@@ -39,7 +39,7 @@ require([
     // console.log(PhysicsBox);
     // console.log(Mind);
     // console.log(Body);
-    console.log(Wall);
+    // console.log(Wall);
 
 // ----------
 // Box2D Init
@@ -94,7 +94,7 @@ require([
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    var testCreature = new Creature.Car(4, 10);
+    var testCreature = new Creature.Scorpion(4, 10, testWall);
     testCreature.addToWorld(world);
 
     //---------------------------------------------------
@@ -229,9 +229,6 @@ require([
         var entityData = testCreature.bodyPartData().concat( testWall.data() );
 
         requestAnimFrame( animate );
-
-        console.log(testCreature);
-        console.log(entityData);
 
         function animate() {
             requestAnimFrame( animate );

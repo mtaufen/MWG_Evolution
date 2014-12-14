@@ -54,6 +54,8 @@ define([ "app/Body/BodyPart"
       }
 
       this.joint = null; // Joint body parts have a Box2D "joint" instead of a "body".
+
+      this.name = "WeldJoint";
     }
   , setInitialBodyValues: function (attachA, attachB) {
       // Assumes A is in the world and B is not.

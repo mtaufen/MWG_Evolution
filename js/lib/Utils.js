@@ -13,5 +13,16 @@ define(["lib/Box2dWeb_dev"], function (Box2D) {
     return new b2Vec2(c * v.x - s * v.y, s * v.x + c * v.y);
   }
 
+  Utils.Math = {};
+  Utils.Math.signedRemainder = function (a, b) {
+    // returns the signed floating point remainder of dividing a by b
+    if (a === 0) { return b; }
+    var aa = Math.abs(a);
+    var bb = Math.abs(b);
+    var ret = aa - (Math.floor(aa/bb) * bb);
+    ret *= ((a/aa) * (b/bb)); // sign
+    return ret;
+  }
+
   return Utils;
 });

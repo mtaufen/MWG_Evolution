@@ -10,6 +10,7 @@ define([
 
   var BasicWall = Class.extend({
     init: function (initialX, initialY, width, height) {
+      this.name = "BasicWall";
 
       this.initialX = initialX;
       this.initialY = initialY;
