@@ -154,6 +154,8 @@ define([
           var joint = world.CreateJoint(jointDef);
           this.joint = joint;
 
+          console.log(this);
+
       }
 
     }

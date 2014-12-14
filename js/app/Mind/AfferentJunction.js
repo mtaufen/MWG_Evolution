@@ -44,6 +44,14 @@ define(["lib/Class"], function (Class) {
       });
     }
   , synapse: function(dendrite, dendrite_owner) {
+      // TODO: The neuron already ensures that the dendrites
+      // are bound to it when it is constructed, do we really
+      // need to rebind them to the same thing here?
+      // Or perhaps we wish to have the flexibility of changing
+      // the dendrite owner if we want (which wouldn't affect the
+      // original dendrite anyway). There is also the matter of memory
+      // efficiency to consider here, as .bind() returns a new function
+      // every time it is called.
       this.dendrites.push(dendrite.bind(dendrite_owner));
     }
 

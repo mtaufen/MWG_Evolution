@@ -39,10 +39,12 @@ define([
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
         numVertebrae: 2
-      , vertebraWidth: 0.1
-      , vertebraHeight: 0.5
+      , rootWidth: 0.2
+      , rootHeight: 1
       , rootDensity: 1
       , rootMaxTorque: 75000
+      , widthReductionFactor: 1
+      , heightReductionFactor: 1
       , densityReductionFactor: 1
       , torqueReductionFactor: 1
       , friction: 0.5
@@ -57,8 +59,8 @@ define([
       this.vertebrae = [];
       for (var i = 0; i < this.props.numVertebrae; ++i) {
         var vertebra = new Vertebra({
-          width: this.props.vertebraWidth
-        , height: this.props.vertebraHeight
+          width: this.props.rootWidth * Math.pow(this.props.widthReductionFactor, i)
+        , height: this.props.rootHeight * Math.pow(this.props.heightReductionFactor, i)
         , density: this.props.rootDensity * Math.pow(this.props.densityReductionFactor, i)
         , friction: this.props.friction
         , groupIndex: this.props.groupIndex
@@ -94,15 +96,11 @@ define([
       this.bodyPartForwarding = [];
       this.bodyPartForwarding[0] = this.joints[0];
 
-
       this.name = "Tail";
     }
-  , addToWorld: function (world) {
-      this.vertebrae[0].addToWorld(world); // Start chain reaction by adding root to the world.
-    }
-  , addToStage: function (stage) {
-      this.vertebrae[0].addToWorld(world); // Start chain reaction by adding root to the world.
-    }
+    // Note: The Tail does not need an add to world or an add to stage function,
+    //       because its root joint automatically gets added through attachment
+    //       to another body part, like a BoxTorso.
   , data: function () {
       var data = this.vertebrae.map(function (vertebra) {
         return vertebra.data();
