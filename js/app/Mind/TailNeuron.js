@@ -1,13 +1,13 @@
 "use strict";
 define([
         "app/Body/BodyPart"
-      , "app/Mind"
+      , "app/Mind/Neuron"
 
       , "lib/Box2dWeb_dev"
       , "lib/pixi"
-       ], function (BodyPart, Mind, Box2D, PIXI) {
+       ], function (BodyPart, Neuron, Box2D, PIXI) {
 
-  var TailNeuron = Mind.Neuron.extend({
+  var TailNeuron = Neuron.extend({
     init: function () {
 
     }

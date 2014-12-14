@@ -1,14 +1,25 @@
 "use strict";
 define([
         "app/Body/BodyPart"
-      , "app/Mind"
+      , "app/Body/Vertebra"
+      , "app/Mind/AfferentJunction"
 
       , "lib/Box2dWeb_dev"
       , "lib/pixi"
-       ], function (BodyPart, Mind, Box2D, PIXI) {
+       ], function (BodyPart, Vertebra, AfferentJunction, Box2D, PIXI) {
 
   var Tail = BodyPart.extend({
-    init: function () {
+    init: function (data) {
+      /*
+        The tail has a single attachment point on the
+        bottom of the root vertebra.
+
+        The data object can be used to set the following values:
+      */
+
+      this.vertebrae = [];
+    }
+    , initProperties: function (data) {
 
     }
   });

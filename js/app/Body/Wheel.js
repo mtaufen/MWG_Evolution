@@ -35,7 +35,7 @@ define([ "app/Body/BodyPart"
       var circleFixture = new Box2D.Dynamics.b2FixtureDef();
       circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
       circleFixture.density = 1;
-      circleFixture.friction = 0.7;
+      circleFixture.friction = 0.9;
       circleFixture.shape.SetRadius(this.radius)
       circleFixture.filter.groupIndex = this.groupIndex;
 

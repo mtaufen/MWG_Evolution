@@ -27,7 +27,11 @@ define([
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
       this.rightWheel = new Body.Wheel(0.7, groupIndex);
-      this.rightWheelJoint = new Body.RevoluteJoint(true, 0, 3); // default axis is < 1.0, 0.0 >
+      this.rightWheelJoint = new Body.RevoluteJoint({
+        enableMotor: false
+      , motorSpeed: 0
+      , maxMotorTorque: 0
+      }); // default axis is < 1.0, 0.0 >
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
 
