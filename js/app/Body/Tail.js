@@ -61,8 +61,7 @@ define([
         , height: this.props.rootHeight * Math.pow(this.props.heightReductionFactor, i)
         , density: this.props.rootDensity * Math.pow(this.props.densityReductionFactor, i)
         , friction: this.props.friction
-        , groupIndex: this.groupIndex
-        });
+        }, this.groupIndex);
         this.vertebrae[i] = vertebra;
       }
 
@@ -93,6 +92,7 @@ define([
       // point on whatever body part we decide to attach the tail to.
       this.bodyPartForwarding = [];
       this.bodyPartForwarding[0] = this.joints[0];
+
 
       this.name = "Tail";
     }
