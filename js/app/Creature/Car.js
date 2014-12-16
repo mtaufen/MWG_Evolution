@@ -5,6 +5,7 @@ define([
   , "app/Body" ], function (Class, Mind, Body) {
 
   /* This is a demo creature class that drives around like a car.
+  TODO: Update to use new BodyPart structures.
   */
   var Car = Class.extend({
     init: function (initialTorsoX, initialTorsoY) {

@@ -17,11 +17,11 @@ define([
   initialTorsoAngle   (default: 0)
   torsoWidth          (default: 4)
   torsoHeight         (default: 1)
-  leftWheelData       (see below for wheel data defaults)
-  leftWheelJointData  (see below for wheel data defaults)
-  rightWheelJointData (see below for wheel data defaults)
-  rightWheelData      (see below for wheel data defaults)
-  tailData            (see below for tail data defaults)
+  leftWheelData       (default: see defaults on the Wheel class)
+  leftWheelJointData  (default: see defaults on the RevoluteJoint class)
+  rightWheelJointData (default: see defaults on the Wheel class)
+  rightWheelData      (default: see defaults on the RevoluteJoint class)
+  tailData            (default: see defaults on the Tail class)
 
   Defaults for left wheel data:
 
@@ -44,7 +44,15 @@ define([
 
       var groupIndex = -2; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 4, 1, 0, groupIndex);
+      this.torso = new Body.BoxTorso({
+        groupIndex: groupIndex
+      , initialX: initialTorsoX
+      , initialY: initialTorsoY
+      , width: 4
+      , height: 1
+      , density: 1
+      , friction: 0.01
+      });
 
       this.leftWheel = new Body.Wheel({
         groupIndex: groupIndex
