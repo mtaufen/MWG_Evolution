@@ -4,9 +4,19 @@ define([ "app/Body/BodyPart"
        , "lib/pixi"
        ], function (BodyPart, Box2D, PIXI) {
 
+        /*
+          Default data options:
+          initialX     (default: 4)
+          initialY     (default: 10)
+          initialAngle (default: 0)
+          width        (default: 4)
+          height       (default: 1)
+          density      (default: 1)
+          friction     (default: 0.01)
+        */
+
   var BoxTorso = BodyPart.extend({
-    init: function (initialX, initialY, width, height, initialAngle, groupIndex) {
-      if (typeof(initialAngle) === 'undefined') { initialAngle = 0; }
+    init: function (data, groupIndex) {
       /*
         The BoxTorso has attachment points at each corner and
         at the midpoints of each side.
@@ -25,45 +35,64 @@ define([ "app/Body/BodyPart"
         body's local coordinates.
 
       */
+
+      // Initialize properties:
+      if ( typeof(data) === 'undefined' ) { data = {}; }
+      this.props = {
+        initialX: 4
+      , initialY: 10
+      , initialAngle: 0
+      , width: 4
+      , height: 1
+      , density: 1
+      , friction: 0.01
+      };
+
+      for (var key in data) {
+        if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
+      }
+
+
+
       var b2Vec2 = Box2D.Common.Math.b2Vec2;
       var attachments = [
         {
-          anchorPoint: new b2Vec2(-width/2, -height/2) // Top-Left Corner
+          anchorPoint: new b2Vec2(-this.props.width/2, -this.props.height/2) // Top-Left Corner
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(0, -height/2) // Top Midpoint
+          anchorPoint: new b2Vec2(0, -this.props.height/2) // Top Midpoint
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(width/2, -height/2) // Top-Right Corner
+          anchorPoint: new b2Vec2(this.props.width/2, -this.props.height/2) // Top-Right Corner
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(width/2, 0) // Right Midpoint
+          anchorPoint: new b2Vec2(this.props.width/2, 0) // Right Midpoint
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(width/2, height/2) // Bottom-Right Corner
+          anchorPoint: new b2Vec2(this.props.width/2, this.props.height/2) // Bottom-Right Corner
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(0, height/2) // Bottom Midpoint
+          anchorPoint: new b2Vec2(0, this.props.height/2) // Bottom Midpoint
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(-width/2, height/2) // Bottom-Left Corner
+          anchorPoint: new b2Vec2(-this.props.width/2, this.props.height/2) // Bottom-Left Corner
         , bodyPart:    null
         , complement: null
         }
       , {
-          anchorPoint: new b2Vec2(-width/2, 0) // Left Midpoint
+          anchorPoint: new b2Vec2(-this.props.width/2, 0) // Left Midpoint
         , bodyPart:    null
         , complement: null
         }
@@ -72,12 +101,10 @@ define([ "app/Body/BodyPart"
       // Note: There is nothing to control on this torso, so it has no junctions.
       this._super(attachments, [], groupIndex);
 
-      this.initialX = initialX;
-      this.initialY = initialY;
-      this.initialAngle = initialAngle;
 
-      this.width = width;
-      this.height = height;
+      this.initialX = this.props.initialX;
+      this.initialY = this.props.initialY;
+      this.initialAngle = this.props.initialAngle;
 
       this.body = null;
       this.graphics = null;
@@ -94,9 +121,9 @@ define([ "app/Body/BodyPart"
 
       var polyFixture = new Box2D.Dynamics.b2FixtureDef();
       polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
-      polyFixture.density = 1;
-      polyFixture.friction = 0.01;
-      polyFixture.shape.SetAsBox(this.width/2, this.height/2);
+      polyFixture.density = this.props.density;
+      polyFixture.friction = this.props.friction;
+      polyFixture.shape.SetAsBox(this.props.width/2, this.props.height/2);
       polyFixture.filter.groupIndex = this.groupIndex;
 
       var body = world.CreateBody(bodyDef);
@@ -124,11 +151,11 @@ define([ "app/Body/BodyPart"
 
       // Fill
       graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawRect(0, 0, this.width * METER, this.height * METER);
+      graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
       graphics.endFill();
 
       // Center Pivot
-      graphics.pivot = new PIXI.Point(this.width * METER/2, this.height * METER/2);
+      graphics.pivot = new PIXI.Point(this.props.width * METER/2, this.props.height * METER/2);
 
       this.graphics = graphics;
 
