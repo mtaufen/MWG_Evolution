@@ -107,6 +107,7 @@ define([
       return [{
         body: this.body
       , graphics: this.graphics
+      , type: "Eye"
       }];
     }
 

@@ -143,7 +143,8 @@ define([ "app/Body/BodyPart"
     }
   , data: function () {
       return [{
-        body: this.body
+        type: "BoxTorso"
+      , body: this.body
       , graphics: this.graphics
       }];
     }

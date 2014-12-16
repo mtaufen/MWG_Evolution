@@ -9,7 +9,7 @@ define([
   the distance to the wall.
   */
   var Scorpion = Class.extend({
-    init: function (initialTorsoX, initialTorsoY, targetWall) {
+    init: function (initialTorsoX, initialTorsoY, targetWall, data) {
       if (typeof initialTorsoX == "undefined") { initialTorsoX = 10; }
       if (typeof initialTorsoY == "undefined") { initialTorsoY = 10; }
 
@@ -17,7 +17,7 @@ define([
 
       var groupIndex = -2; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 4, 1, 0, groupIndex);
+      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 5, 1, 0, groupIndex);
 
       this.leftWheel = new Body.Wheel(0.7, 0, groupIndex);
       this.leftWheelJoint = new Body.RevoluteJoint({

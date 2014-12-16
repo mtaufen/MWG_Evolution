@@ -89,13 +89,14 @@ require([
 
     // --------------- Assert: Basic World Is Initialized -------------------
 
-
+    var data;
     // Add test objects
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    var testCreature = new Creature.Scorpion(4, 10, testWall);
+    var testCreature = new Creature.Scorpion(4, 10, testWall, data);
     testCreature.addToWorld(world);
+    console.log(testCreature.bodyPartData())
 
     //---------------------------------------------------
 

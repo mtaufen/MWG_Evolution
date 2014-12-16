@@ -86,6 +86,7 @@ define([ "app/Body/BodyPart"
       return [{
         body: this.body
       , graphics: this.graphics
+      , type: "Wheel"
       }];
     }
   });
