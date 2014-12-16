@@ -4,9 +4,19 @@ define([ "app/Body/BodyPart"
        , "lib/pixi"
        ], function (BodyPart, Box2D, PIXI) {
 
+    /*
+    Optional data settings for the wheel:
+
+    groupIndex   (default: 0)
+    radius       (default: 0.7)
+    initialAngle (default: 0)
+    density      (default: 1)
+    friction     (default: 0.9)
+
+    */
+
     var Wheel = BodyPart.extend({
-    init: function (radius, initialAngle, groupIndex) {
-      if (typeof(initialAngle) === 'undefined') { initialAngle = 0; }
+    init: function (data) {
       /*
         The wheel has a single attachment point at its center.
       */
@@ -16,10 +26,21 @@ define([ "app/Body/BodyPart"
         , bodyPart:    null
         , complement: null
         }];
-      this._super(attachments, [], groupIndex);
+      this._super(attachments, [], data.groupIndex);
 
-      this.radius = radius;
-      this.initialAngle = initialAngle;
+      if ( typeof(data) === 'undefined' ) { data = {}; }
+      this.props = { // groupIndex default is handled by superclass
+        radius: 0.7
+      , initialAngle: 0
+      , density: 1
+      , friction: 0.9
+      };
+
+      for (var key in data) {
+        if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
+      }
+
+      this.initialAngle = this.props.initialAngle; // addToWorld for joints expects this.initialAngle if the wheel is the source of that stage of addToWorld traversal
 
       this.body = null;
       this.graphics = null;
@@ -34,16 +55,14 @@ define([ "app/Body/BodyPart"
 
       var circleFixture = new Box2D.Dynamics.b2FixtureDef();
       circleFixture.shape = new Box2D.Collision.Shapes.b2CircleShape();
-      circleFixture.density = 2;
-      circleFixture.friction = 0.9;
-      circleFixture.shape.SetRadius(this.radius)
+      circleFixture.density = this.props.density;
+      circleFixture.friction = this.props.friction;
+      circleFixture.shape.SetRadius(this.props.radius)
       circleFixture.filter.groupIndex = this.groupIndex;
 
       var body = world.CreateBody(bodyDef);
       body.CreateFixture(circleFixture);
 
-      // this.initialX = 3;
-      // this.initialY = 3;
       if (this.initialX !== null && this.initialY !== null) {
         var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);
         body.SetPosition(pos);
@@ -68,7 +87,7 @@ define([ "app/Body/BodyPart"
 
       // Fill
       graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawCircle(0, 0, this.radius * METER);
+      graphics.drawCircle(0, 0, this.props.radius * METER);
       graphics.endFill();
 
       this.graphics = graphics;

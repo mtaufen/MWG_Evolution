@@ -7,6 +7,33 @@ define([
   /* This is a creature that drives around like a car, but
   has a scorpion-like tail to attack with and an eye to measure
   the distance to the wall.
+
+  The data parameter for the scorpion may provide the following settings,
+  all are optional:
+
+  groupIndex          (default: -1)
+  initialTorsoX       (default: 10)
+  initialTorsoY       (default: 10)
+  initialTorsoAngle   (default: 0)
+  torsoWidth          (default: 4)
+  torsoHeight         (default: 1)
+  leftWheelData       (see below for wheel data defaults)
+  leftWheelJointData  (see below for wheel data defaults)
+  rightWheelJointData (see below for wheel data defaults)
+  rightWheelData      (see below for wheel data defaults)
+  tailData            (see below for tail data defaults)
+
+  Defaults for left wheel data:
+
+
+
+
+
+  TODO: Provide a method that gets the data object that was used to create the creature.
+
+
+
+
   */
   var Scorpion = Class.extend({
     init: function (initialTorsoX, initialTorsoY, targetWall) {
@@ -19,7 +46,12 @@ define([
 
       this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 4, 1, 0, groupIndex);
 
-      this.leftWheel = new Body.Wheel(0.7, 0, groupIndex);
+      this.leftWheel = new Body.Wheel({
+        groupIndex: groupIndex
+      , radius: 1
+      , density: 2
+      , friction: 0.1
+      });
       this.leftWheelJoint = new Body.RevoluteJoint({
         enableMotor: true
       , motorSpeed: 0
@@ -28,7 +60,9 @@ define([
       this.torso.attach(6, this.leftWheelJoint, 0);
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
-      this.rightWheel = new Body.Wheel(0.7, 0, groupIndex);
+      this.rightWheel = new Body.Wheel({
+        groupIndex: groupIndex
+      });
       this.rightWheelJoint = new Body.RevoluteJoint({
         enableMotor: false
       , motorSpeed: 0
