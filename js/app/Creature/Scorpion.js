@@ -12,124 +12,86 @@ define([
   all are optional:
 
   groupIndex          (default: -1)
-  initialTorsoX       (default: 10)
-  initialTorsoY       (default: 10)
-  initialTorsoAngle   (default: 0)
-  torsoWidth          (default: 4)
-  torsoHeight         (default: 1)
+
+  torsoData           (default: see defaults on the BoxTorso class)
+
   leftWheelData       (default: see defaults on the Wheel class)
   leftWheelJointData  (default: see defaults on the RevoluteJoint class)
-  rightWheelJointData (default: see defaults on the Wheel class)
+
   rightWheelData      (default: see defaults on the RevoluteJoint class)
+  rightWheelJointData (default: see defaults on the Wheel class)
+
   tailData            (default: see defaults on the Tail class)
-
-  Defaults for left wheel data:
-
-
-
+  tailNeuronData      (default: dee defaults on the TailNeuron class)
 
 
   TODO: Provide a method that gets the data object that was used to create the creature.
-
-
-
-
+  could probably just read this.props after init
   */
   var Scorpion = Class.extend({
-    init: function (initialTorsoX, initialTorsoY, targetWall) {
-      if (typeof initialTorsoX == "undefined") { initialTorsoX = 10; }
-      if (typeof initialTorsoY == "undefined") { initialTorsoY = 10; }
+    init: function (data, targetWall, groupIndex) {
+      if (typeof groupIndex == "undefined") { groupIndex = -1; }
 
       var b2Vec2 = Box2D.Common.Math.b2Vec2;
 
-      var groupIndex = -2; // never collide wheel and body
+      // Initialize properties:
+      if ( typeof(data) === 'undefined' ) { data = {}; }
+      this.props = {
+        torsoData:  {}
+      , leftWheelData: {}
+      , leftWheelJointData: {}
+      , rightWheelData: {}
+      , rightWheelJointData: {}
+      , tailData: {}
+      , tailNeuronData: {}
+      };
+      for (var key in data) {
+        if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
+      }
 
-      this.torso = new Body.BoxTorso({
-        groupIndex: groupIndex
-      , initialX: initialTorsoX
-      , initialY: initialTorsoY
-      , width: 4
-      , height: 1
-      , density: 1
-      , friction: 0.01
-      });
 
-      this.leftWheel = new Body.Wheel({
-        groupIndex: groupIndex
-      , radius: 1
-      , density: 2
-      , friction: 0.1
-      });
-      this.leftWheelJoint = new Body.RevoluteJoint({
-        enableMotor: true
-      , motorSpeed: 0
-      , maxMotorTorque: 75
-      });
+      // TORSO
+      this.torso = new Body.BoxTorso(this.props.torsoData, groupIndex);
+
+      // LEFT WHEEL
+      console.log("left wheel");
+      this.leftWheel = new Body.Wheel(this.props.leftWheelData, groupIndex);
+      this.leftWheelJoint = new Body.RevoluteJoint(this.props.leftWheelJointData);
       this.torso.attach(6, this.leftWheelJoint, 0);
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
-      this.rightWheel = new Body.Wheel({
-        groupIndex: groupIndex
-      });
-      this.rightWheelJoint = new Body.RevoluteJoint({
-        enableMotor: false
-      , motorSpeed: 0
-      , maxMotorTorque: 0
-      }); // default axis is < 1.0, 0.0 >
+      // RIGHT WHEEL
+      console.log("right wheel");
+      this.rightWheel = new Body.Wheel(this.props.rightWheelData, groupIndex);
+      this.rightWheelJoint = new Body.RevoluteJoint(this.props.rightWheelJointData);
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
 
+      // EYE
       this.eye = new Body.Eye(0.2, 0.2, groupIndex);
       this.eye.wall = targetWall;
       this.eyeJoint = new Body.WeldJoint();
       this.torso.attach(3, this.eyeJoint, 0);
       this.eye.attach(0, this.eyeJoint, 1);
+      var eyeDistanceJunction = this.eye.junctions[0];
 
-      this.tail = new Body.Tail({
-        groupIndex: groupIndex
-      });
+      // TAIL
+      this.tail = new Body.Tail(this.props.tailData, groupIndex);
+      this.torso.attach(1, this.tail, 0);
+      var tailJointAngleJunctions = this.tail.joints.map(function (joint) { return joint.junctions[6]; });
+      var tailJointSpeedJunctions = this.tail.joints.map(function (joint) { return joint.junctions[3]; });
 
-      this.tailNeuron = new Mind.TailNeuron({
-        // options
-      });
+      // TAIL NEURON
+      this.tailNeuron = new Mind.TailNeuron(this.props.tailNeuronData);
       this.tailNeuron.linkToTail(this.tail);
       this.tailNeuron.linkToEye(this.eye);
-      this.torso.attach(1, this.tail, 0);
-      var tailJointAngleJunctions = this.tail.joints.map(function (joint) {
-        return joint.junctions[6];
-      });
-      var tailJointSpeedJunctions = this.tail.joints.map(function (joint) {
-        return joint.junctions[3];
-      });
 
-      // Neuron to translate that input into output on the 3-junction on the left wheel joint.
-      this.motorNeuron = new Mind.Neuron([
-        function(desiredSpeed) {
-          this.impulse(0, desiredSpeed);
-        }
-      ],[[]]); // Supply one unconnected axon at terminal 0
-      var leftWheelJunction3 = this.leftWheelJoint.junctions[3];
-      this.motorNeuron.synapse(0, leftWheelJunction3.pushImpulse, leftWheelJunction3); // Connect the efferent left wheel joint speed junction's impulse queue to the motor neuron
-
-
-      // Afferent junction for input to network
-      // We are using the speedControllerJunction to fake
-      // environmental input.
-      var speedControllerJunction = new Mind.AfferentJunction(null, function () {
-        return 10;
-      });
-      speedControllerJunction.synapse(this.motorNeuron.dendrites[0]);
-
-      var eyeJunction = this.eye.junctions[0];
-
-      // Record the junctions that the brain is allowed to use.
-      var afferents = [   speedControllerJunction
-                        , eyeJunction
-                      ].concat(tailJointAngleJunctions);
-      var efferents = [leftWheelJunction3].concat(tailJointSpeedJunctions);
-      // Brain impulses afferents, then impulses efferents
+      // BRAIN
+      var afferents = [ eyeDistanceJunction ].concat(tailJointAngleJunctions);
+      var efferents = [].concat(tailJointSpeedJunctions);
       this.brain = new Mind.Brain(afferents, efferents);
 
+      // Class name parameter for debugging use
       this.name = "Scorpion";
     }
   , addToWorld: function (world) {

@@ -7,7 +7,6 @@ define([ "app/Body/BodyPart"
     /*
     Optional data settings for the wheel:
 
-    groupIndex   (default: 0)
     radius       (default: 0.7)
     initialAngle (default: 0)
     density      (default: 1)
@@ -16,7 +15,7 @@ define([ "app/Body/BodyPart"
     */
 
     var Wheel = BodyPart.extend({
-    init: function (data) {
+    init: function (data, groupIndex) {
       /*
         The wheel has a single attachment point at its center.
       */
@@ -26,7 +25,7 @@ define([ "app/Body/BodyPart"
         , bodyPart:    null
         , complement: null
         }];
-      this._super(attachments, [], data.groupIndex);
+      this._super(attachments, [], groupIndex);
 
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = { // groupIndex default is handled by superclass

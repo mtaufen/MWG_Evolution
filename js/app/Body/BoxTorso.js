@@ -6,8 +6,7 @@ define([ "app/Body/BodyPart"
 
         /*
           Default data options:
-          groupIndex   (default: 0)
-          initialX     (default: 10)
+          initialX     (default: 4)
           initialY     (default: 10)
           initialAngle (default: 0)
           width        (default: 4)
@@ -17,7 +16,7 @@ define([ "app/Body/BodyPart"
         */
 
   var BoxTorso = BodyPart.extend({
-    init: function (data) {
+    init: function (data, groupIndex) {
       /*
         The BoxTorso has attachment points at each corner and
         at the midpoints of each side.
@@ -40,7 +39,7 @@ define([ "app/Body/BodyPart"
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
-        initialX: 10
+        initialX: 4
       , initialY: 10
       , initialAngle: 0
       , width: 4
@@ -100,7 +99,7 @@ define([ "app/Body/BodyPart"
       ];
 
       // Note: There is nothing to control on this torso, so it has no junctions.
-      this._super(attachments, [], data.groupIndex);
+      this._super(attachments, [], groupIndex);
 
 
       this.initialX = this.props.initialX;

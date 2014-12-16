@@ -5,7 +5,7 @@ define([ "app/Body/BodyPart"
        ], function (BodyPart, Box2D, PIXI) {
 
   var Vertebra = BodyPart.extend({
-    init: function (data) {
+    init: function (data, groupIndex) {
 
       /*
         The Vertebra has attachment points at the top and bottom.
@@ -52,7 +52,7 @@ define([ "app/Body/BodyPart"
         }
       ];
 
-      this._super(attachments, [], this.props.groupIndex);
+      this._super(attachments, [], groupIndex);
 
       this.name = "Vertebra";
     }
