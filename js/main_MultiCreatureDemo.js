@@ -96,8 +96,42 @@ require([
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
+    var scorpionData = {
+        torsoData:  {}
+
+      , leftWheelData: {
+          radius: 1
+        , density: 2
+        , friction: 0.1
+        }
+
+      , leftWheelJointData: {
+          enableMotor: true
+        , motorSpeed: 10
+        , maxMotorTorque: 75
+        }
+
+      , rightWheelData: {
+          friction: 0.01
+        }
+
+      , rightWheelJointData: {
+          enableMotor: true
+        , motorSpeed: -6
+        , maxMotorTorque: 10
+        }
+
+      , tailData: {
+
+        }
+
+      , tailNeuronData: {
+
+        }
+    };
+
     for (var i=0; i<numcreatures; ++i){
-    creatures[i] = new Creature.Scorpion(4, 10, testWall, data);
+    creatures[i] = new Creature.Scorpion(scorpionData, testWall);
     creatures[i].addToWorld(world);
     };
 
