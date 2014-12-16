@@ -17,7 +17,7 @@ define([
 
       var groupIndex = -2; // never collide wheel and body
 
-      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 5, 1, 0, groupIndex);
+      this.torso = new Body.BoxTorso(initialTorsoX, initialTorsoY, 3, 1, 0, groupIndex);
 
       this.leftWheel = new Body.Wheel(0.7, 0, groupIndex);
       this.leftWheelJoint = new Body.RevoluteJoint({

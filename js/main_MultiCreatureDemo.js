@@ -89,14 +89,17 @@ require([
 
     // --------------- Assert: Basic World Is Initialized -------------------
 
+    var numcreatures = 20;
+    var creatures = [];
     var data;
     // Add test objects
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    var testCreature = new Creature.Scorpion(4, 10, testWall, data);
-    testCreature.addToWorld(world);
-    console.log(testCreature.bodyPartData())
+    for (var i=0; i<numcreatures; ++i){
+    creatures[i] = new Creature.Scorpion(4, 10, testWall, data);
+    creatures[i].addToWorld(world);
+    };
 
     //---------------------------------------------------
 
@@ -223,19 +226,25 @@ require([
         var stage = new PIXI.Stage(0x66FF99);
         var renderer = PIXI.autoDetectRenderer(600, 400);
         document.body.appendChild(renderer.view);
-
-        testCreature.addToStage(stage, METER);
         testWall.addToStage(stage, METER);
 
-        var entityData = testCreature.bodyPartData().concat( testWall.data() );
+        var data = [testWall.data()]
+        creatures.forEach(function(creature, index, arr){
+            creature.addToStage(stage, METER);
+            data.push(creature.bodyPartData());
+        });
+
+        var entityData = [].concat.apply([], data);
 
         requestAnimFrame( animate );
 
         function animate() {
             requestAnimFrame( animate );
 
-            world.Step(1 / 60, 10, 10);
-            testCreature.brain.think();
+            world.Step(1 / 60, 5, 5);
+            creatures.forEach(function(creature, index, arr){
+                creature.brain.think();
+            });
 
             world.DrawDebugData();
             entityData.forEach( function (datum) {
