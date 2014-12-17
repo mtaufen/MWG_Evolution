@@ -5,7 +5,7 @@ define([ "app/Body/BodyPart"
        ], function (BodyPart, Box2D, PIXI) {
 
   var Vertebra = BodyPart.extend({
-    init: function (data, groupIndex) {
+    init: function (data, groupIndex, ID) {
 
       /*
         The Vertebra has attachment points at the top and bottom.
@@ -52,7 +52,7 @@ define([ "app/Body/BodyPart"
         }
       ];
 
-      this._super(attachments, [], groupIndex);
+      this._super(attachments, [], groupIndex, ID);
 
       this.name = "Vertebra";
     }
@@ -73,7 +73,8 @@ define([ "app/Body/BodyPart"
 
       var body = world.CreateBody(bodyDef);
       body.CreateFixture(polyFixture);
-
+      body.ID = this.ID;
+      
       var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);
       body.SetPosition(pos);
       body.SetAngle(this.initialAngle);

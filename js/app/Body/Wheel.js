@@ -15,7 +15,7 @@ define([ "app/Body/BodyPart"
     */
 
     var Wheel = BodyPart.extend({
-    init: function (data, groupIndex) {
+    init: function (data, groupIndex, ID) {
       /*
         The wheel has a single attachment point at its center.
       */
@@ -25,7 +25,7 @@ define([ "app/Body/BodyPart"
         , bodyPart:    null
         , complement: null
         }];
-      this._super(attachments, [], groupIndex);
+      this._super(attachments, [], groupIndex, ID);
 
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = { // groupIndex default is handled by superclass
@@ -61,6 +61,7 @@ define([ "app/Body/BodyPart"
 
       var body = world.CreateBody(bodyDef);
       body.CreateFixture(circleFixture);
+      body.ID = this.ID;
 
       if (this.initialX !== null && this.initialY !== null) {
         var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);

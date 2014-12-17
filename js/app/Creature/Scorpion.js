@@ -29,8 +29,9 @@ define([
   could probably just read this.props after init
   */
   var Scorpion = Class.extend({
-    init: function (data, targetWall, groupIndex) {
+    init: function (data, targetWall, groupIndex, creatureID) {
       if (typeof groupIndex == "undefined") { groupIndex = -1; }
+      if (typeof creatureID == "undefined") { creatureID = -1; }
 
       var b2Vec2 = Box2D.Common.Math.b2Vec2;
 
@@ -48,14 +49,14 @@ define([
       for (var key in data) {
         if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
       }
-
+      this.ID = creatureID;
 
       // TORSO
-      this.torso = new Body.BoxTorso(this.props.torsoData, groupIndex);
+      this.torso = new Body.BoxTorso(this.props.torsoData, groupIndex, creatureID);
 
       // LEFT WHEEL
       console.log("left wheel");
-      this.leftWheel = new Body.Wheel(this.props.leftWheelData, groupIndex);
+      this.leftWheel = new Body.Wheel(this.props.leftWheelData, groupIndex, creatureID);
       this.leftWheelJoint = new Body.RevoluteJoint(this.props.leftWheelJointData);
 
       this.torso.attach(6, this.leftWheelJoint, 0);
@@ -63,7 +64,7 @@ define([
 
       // RIGHT WHEEL
       console.log("right wheel");
-      this.rightWheel = new Body.Wheel(this.props.rightWheelData, groupIndex);
+      this.rightWheel = new Body.Wheel(this.props.rightWheelData, groupIndex, creatureID);
       this.rightWheelJoint = new Body.RevoluteJoint(this.props.rightWheelJointData);
       this.torso.attach(4, this.rightWheelJoint, 0);
       this.rightWheel.attach(0, this.rightWheelJoint, 1);
@@ -77,7 +78,7 @@ define([
       var eyeDistanceJunction = this.eye.junctions[0];
 
       // TAIL
-      this.tail = new Body.Tail(this.props.tailData, groupIndex);
+      this.tail = new Body.Tail(this.props.tailData, groupIndex, creatureID);
       this.torso.attach(1, this.tail, 0);
       var tailJointAngleJunctions = this.tail.joints.map(function (joint) { return joint.junctions[6]; });
       var tailJointSpeedJunctions = this.tail.joints.map(function (joint) { return joint.junctions[3]; });
