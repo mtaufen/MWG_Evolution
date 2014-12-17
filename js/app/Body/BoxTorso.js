@@ -168,6 +168,7 @@ define([ "app/Body/BodyPart"
       var TEETH_BOT_ROOT_HEIGHT_FACTOR = 0.4;
       var TEETH_BOT_ROOT_WIDTH_FACTOR  = MOUTH_BOTTOM_WIDTH_FACTOR * (1 - TEETH_BOT_REDUCTION_FACTOR) / (1 - Math.pow(TEETH_BOT_REDUCTION_FACTOR, TEETH_BOT_NUM));
 
+
       // Base fill:
       graphics.beginFill(0x4B5320, 1);
       graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
@@ -302,20 +303,33 @@ define([ "app/Body/BodyPart"
       graphics.endFill();
 
 
+      // Eye fill
+      // Eye positioning and size depends on the mouth corner
 
+      var eyeX     = mouthCornerX
+        , eyeY     = mouthCornerY / 2
+        , eyeRad   = mouthCornerY / 6
+        , pupilRad = eyeRad / 2
+        ;
+      graphics.beginFill(0xFFFFFF, 1);
+      graphics.drawCircle(eyeX, eyeY, eyeRad);
+      graphics.endFill();
+      graphics.beginFill(0x000000, 1);
+      graphics.drawCircle(eyeX, eyeY, pupilRad);
+      graphics.endFill();
 
-
-
-
-
-
-
-
-
-
-
-
-
+      // Gills fill
+      // Gills positioning depends on the mouth corner
+      var numGills = 5;
+      var gillRootX = mouthCornerX / (numGills + 2)
+        , gillRootY = mouthCornerY / 2
+        , gillWidth = 2
+        ;
+      graphics.lineStyle(gillWidth, 0x000000, 1);
+      for (var i = 0; i < numGills; ++i) {
+        graphics.moveTo(gillRootX + i * gillRootX, gillRootY);
+        graphics.lineTo(gillRootX + (1+ i) * gillRootX, mouthCornerY);
+      }
 
 
 
