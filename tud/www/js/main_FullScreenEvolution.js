@@ -231,9 +231,6 @@ require([
             tempData[6]=testGenerator.GenerateData(seed[0],seed[1]);
             tempData[7]=testGenerator.GenerateData(seed[0],seed[2]);
             tempData[8]=testGenerator.GenerateData(seed[1],seed[2]);
-            tempData[9]=testGenerator.GenerateData(seed[0],seed[1]);
-            tempData[10]=testGenerator.GenerateData(seed[0],seed[2]);
-            tempData[11]=testGenerator.GenerateData(seed[1],seed[2]);
             return tempData;
         }
 
