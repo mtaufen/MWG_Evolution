@@ -283,8 +283,6 @@ require([
         var interactive = true;
         var stage = new PIXI.Stage(0x00AEFF, interactive);
 
-        var filter = new PIXI.TiltShiftFilter();
-        stage.filters = [filter];
 
 
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
