@@ -94,103 +94,13 @@ require([
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    var scorpionData1 = {
-        torsoData:  {
-          width: 5
-        }
-
-      , leftWheelData: {
-          radius: 1.5
-        , density: 2
-        , friction: 0.1
-        }
-
-      , leftWheelJointData: {
-          enableMotor: true
-        , motorSpeed: 15
-        , maxMotorTorque: 100
-        }
-
-      , rightWheelData: {
-          radius: .5
-        , density: 5
-        , friction: 0.1
-        }
-
-      , rightWheelJointData: {
-          enableMotor: true
-        , motorSpeed: -1
-        , maxMotorTorque: 10
-        }
-
-      , tailData: {
-          numVertebrae: 3
-      , rootWidth: 0.2
-      , rootHeight: 1.3
-      , rootDensity: 1.3
-      , rootMaxTorque: 750000
-      , widthReductionFactor: .8
-      , heightReductionFactor: 1.1
-      , densityReductionFactor: 1.2
-      , torqueReductionFactor: 1.2
-      , friction: 0.5
-        }
-
-      , tailNeuronData: {
-
-        }
-    };
-    var scorpionData2 = {
-        torsoData:  {
-          width: 8
-        }
-
-      , leftWheelData: {
-          radius: 3
-        , density: 2
-        , friction: 0.1
-        }
-
-      , leftWheelJointData: {
-          enableMotor: true
-        , motorSpeed: 10
-        , maxMotorTorque: 75
-        }
-
-      , rightWheelData: {
-          radius: 3
-        , density: 3
-        , friction: 0.1
-        }
-
-      , rightWheelJointData: {
-          enableMotor: true
-        , motorSpeed: -6
-        , maxMotorTorque: 10
-        }
-
-      , tailData: {
-          numVertebrae: 8
-      , rootWidth: 0.4
-      , rootHeight: .8
-      , rootDensity: .5
-      , rootMaxTorque: 750000
-      , widthReductionFactor: 1.5
-      , heightReductionFactor: .9
-      , densityReductionFactor: .8
-      , torqueReductionFactor: 1.2
-      , friction: 0.5
-        }
-
-      , tailNeuronData: {
-
-        }
-    };
-    var parent1 = new Creature.Scorpion(scorpionData1, testWall);
-    var parent2 = new Creature.Scorpion(scorpionData2, testWall);
     testGenerator = new Generator();
+    var dat = testGenerator.GenerateRandData(2)
+    var parent1 = new Creature.Scorpion(dat[0], testWall);
+    var parent2 = new Creature.Scorpion(dat[1], testWall);
+    
     console.log(testGenerator.GenerateRandData(5));
-    var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2, 1), testWall);
+    var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2), testWall);
     console.log(testCreature.props);
     testCreature.addToWorld(world);
 
