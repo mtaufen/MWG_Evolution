@@ -20,7 +20,7 @@ define([
                 , initialAngle: 0
                 , width: Utils.Math.randRange(2,5)
                 , height: Utils.Math.randRange(.1,2)
-                , density: Utils.Math.randRange(.8,1.2)
+                , density: Utils.Math.randRange(1,4)
                 , friction: 0.01
             }
 
@@ -49,12 +49,12 @@ define([
           }
 
           , tailData: {
-              numVertebrae: Utils.Math.randRange(2,10)
-              , rootWidth: Utils.Math.randRange(.1,1)
-              , rootHeight: Utils.Math.randRange(.3,1.3)
+              numVertebrae: Utils.Math.randRange(3,8)
+              , rootWidth: Utils.Math.randRange(.1,.7)
+              , rootHeight: Utils.Math.randRange(.5,1.3)
               , rootDensity: Utils.Math.randRange(.5,1.5)
               , rootMaxTorque: Utils.Math.randRange(75000,750000)
-              , widthReductionFactor: Utils.Math.randRange(.8,1.3)
+              , widthReductionFactor: Utils.Math.randRange(.85,1.25)
               , heightReductionFactor: Utils.Math.randRange(.7,1.2)
               , densityReductionFactor: Utils.Math.randRange(.8,1.1)
               , torqueReductionFactor: Utils.Math.randRange(.9,1.3)
@@ -62,7 +62,7 @@ define([
           }
 
           , tailNeuronData: {
-
+              maxMotorSpeeds: [Utils.Math.randRange(1,8), Utils.Math.randRange(5,20)]
           }
         };
         NData.push(Utils.Data.copyThing(TData));
@@ -81,6 +81,10 @@ define([
             if (Math.random()<this.mutationRate && typeof(CData[prop][key])==="number"){
               //console.log("mutation");
               CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+            }
+            if (Math.random()<this.mutationRate && key=="maxMotorSpeeds"){
+              //console.log("mutation in maxMotorSpeeds");
+              CData[prop][key] = [Utils.Math.randRange(AData[prop][key][0], BData[prop][key][0]),Utils.Math.randRange(AData[prop][key][1], BData[prop][key][1])];
             }
           }
         }

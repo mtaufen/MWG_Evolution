@@ -63,47 +63,56 @@ require([
 
 
     // Create World (In the simulation, we will create a new world for each creature)
-    var world = new b2World( new b2Vec2(0, 10), true);
+    var initWorld = function(){
+      var world = new b2World( new b2Vec2(0, 10), true);
 
 
-    var fixDef = new b2FixtureDef;
-    fixDef.density = 1.0;
-    fixDef.friction = 0.5;
-    fixDef.restitution = 0.2;
+      var fixDef = new b2FixtureDef;
+      fixDef.density = 1.0;
+      fixDef.friction = 0.5;
+      fixDef.restitution = 0.2;
 
-    var bodyDef = new b2BodyDef;
+      var bodyDef = new b2BodyDef;
 
-    //create ground
-    bodyDef.type = b2Body.b2_staticBody;
-    fixDef.shape = new b2PolygonShape;
-    fixDef.shape.SetAsBox(20, 2);
-    bodyDef.position.Set(10, 400 / 30 + 1.8);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    bodyDef.position.Set(10, -1.8);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    fixDef.shape.SetAsBox(2, 14);
-    bodyDef.position.Set(-1.8, 13);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    bodyDef.position.Set(21.8, 13);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
+      //create ground
+      bodyDef.type = b2Body.b2_staticBody;
+      fixDef.shape = new b2PolygonShape;
+      fixDef.shape.SetAsBox(20, 2);
+      bodyDef.position.Set(10, 400 / 30 + 1.8);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      bodyDef.position.Set(10, -1.8);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      fixDef.shape.SetAsBox(2, 14);
+      bodyDef.position.Set(-1.8, 13);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      bodyDef.position.Set(21.8, 13);
+      world.CreateBody(bodyDef).CreateFixture(fixDef);
+      return world;
+};
+    var world=initWorld();
 
-
+    /*document.addEventListener("click", function(){
+      world=initWorld();
+      pixiRendererInit();
+    });*/
     // --------------- Assert: Basic World Is Initialized -------------------
 
 
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    testGenerator = new Generator();
+    testGenerator = new Generator(.25);
     var dat = testGenerator.GenerateRandData(2)
     var parent1 = new Creature.Scorpion(dat[0], testWall);
     var parent2 = new Creature.Scorpion(dat[1], testWall);
 
-    console.log(testGenerator.GenerateRandData(5));
+    //console.log(testGenerator.GenerateRandData(5));
     var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2), testWall);
     console.log(testCreature.props);
 
     testCreature.addToWorld(world);
+
+
 
     //---------------------------------------------------
 
