@@ -38,7 +38,7 @@ define([
             var x = Math.abs(impulse.normalImpulses[0]);
             var y = Math.abs(impulse.tangentImpulses[0]);
             var z = Math.sqrt(x*x+y*y);
-            if (z>5){
+            if (z>4){
                 this.totalForce+=z;//create cutoff for tiny amounts of force!
                 //console.log(this.totalForce);
             }
@@ -57,6 +57,7 @@ define([
       polyFixture.shape = new Box2D.Collision.Shapes.b2PolygonShape();
       polyFixture.density = 1;
       polyFixture.friction = 0.01;
+      polyFixture.restitution = .05;
       polyFixture.shape.SetAsBox(this.width/2, this.height/2);
       polyFixture.filter.groupIndex = this.groupIndex;
 
