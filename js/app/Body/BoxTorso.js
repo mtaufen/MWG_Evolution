@@ -158,10 +158,15 @@ define([ "app/Body/BodyPart"
 
       var TONGUE_HEIGHT_FACTOR = MOUTH_HEIGHT_FACTOR / 3; // The tongue top will always interesect with the mouth corner, but this sets the height on the torso edge.
 
-      var TEETH_TOP_NUM                = 15;
+      var TEETH_TOP_NUM                = this.props.width * 2.5;
       var TEETH_TOP_REDUCTION_FACTOR   = 0.9;
       var TEETH_TOP_ROOT_HEIGHT_FACTOR = 0.3;
       var TEETH_TOP_ROOT_WIDTH_FACTOR  = MOUTH_CORNER_WIDTH_FACTOR * (1 - TEETH_TOP_REDUCTION_FACTOR) / (1 - Math.pow(TEETH_TOP_REDUCTION_FACTOR, TEETH_TOP_NUM));
+
+      var TEETH_BOT_NUM                = this.props.width * 2;
+      var TEETH_BOT_REDUCTION_FACTOR   = 0.9;
+      var TEETH_BOT_ROOT_HEIGHT_FACTOR = 0.4;
+      var TEETH_BOT_ROOT_WIDTH_FACTOR  = MOUTH_BOTTOM_WIDTH_FACTOR * (1 - TEETH_BOT_REDUCTION_FACTOR) / (1 - Math.pow(TEETH_BOT_REDUCTION_FACTOR, TEETH_BOT_NUM));
 
       // Base fill:
       graphics.beginFill(0x4B5320, 1);
@@ -259,6 +264,43 @@ define([ "app/Body/BodyPart"
         frontY = backY;
       }
       graphics.endFill();
+
+      // Bottom teeth fill:
+
+      frontX = mouthBottomX_2;
+      frontY = mouthBottomY_2;
+      backY = frontY;
+
+      graphics.beginFill(0xFFFFFF, 1);
+      for (var i = 0; i < TEETH_BOT_NUM; ++i) {
+        curToothWidth = this.props.width * METER * TEETH_BOT_ROOT_WIDTH_FACTOR * Math.pow(TEETH_BOT_REDUCTION_FACTOR, i);
+        curToothHeight = this.props.height * METER * TEETH_BOT_ROOT_HEIGHT_FACTOR * Math.pow(TEETH_BOT_REDUCTION_FACTOR, i);
+
+        backX = frontX - curToothWidth;
+        tipX  = frontX - (frontX - backX) / 2;
+        tipY  = frontY - curToothHeight; // TODO: Bezier curve calculation + height
+
+        teeth_cp1_X = frontX + curToothWidth / 3;
+        teeth_cp1_Y = frontY - curToothHeight / 3;
+        teeth_cp2_X = teeth_cp1_X;
+        teeth_cp2_Y = teeth_cp1_Y;
+
+        // Draw tooth:
+        graphics.moveTo(frontX, frontY);
+        graphics.bezierCurveTo(teeth_cp1_X, teeth_cp1_Y, teeth_cp2_X, teeth_cp2_Y, tipX, tipY);
+
+        teeth_cp1_X = backX + curToothWidth / 3;
+        teeth_cp1_Y = backY - curToothHeight / 3;
+        teeth_cp2_X = teeth_cp1_X;
+        teeth_cp2_Y = teeth_cp1_Y;
+
+        graphics.bezierCurveTo(teeth_cp1_X, teeth_cp1_Y, teeth_cp2_X, teeth_cp2_Y, backX, backY);
+
+        // Set front of next tooth
+        frontX = backX;
+      }
+      graphics.endFill();
+
 
 
 
