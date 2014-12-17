@@ -30,6 +30,7 @@ require([
     , "app/Body"
     , "app/Creature"
     , "app/Wall"
+    , "app/Generation"
     ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall) {
 
 
@@ -94,10 +95,12 @@ require([
     testWall.addToWorld(world);
 
     var scorpionData = {
-        torsoData:  {}
+        torsoData:  {
+          width: 5
+        }
 
       , leftWheelData: {
-          radius: 1
+          radius: 1.5
         , density: 2
         , friction: 0.1
         }
@@ -109,7 +112,9 @@ require([
         }
 
       , rightWheelData: {
-          friction: 0.01
+          radius: .8
+        , density: 5
+        , friction: 0.1
         }
 
       , rightWheelJointData: {
@@ -119,7 +124,16 @@ require([
         }
 
       , tailData: {
-
+          numVertebrae: 5
+      , rootWidth: 0.4
+      , rootHeight: 1
+      , rootDensity: 1
+      , rootMaxTorque: 750000
+      , widthReductionFactor: 1.4
+      , heightReductionFactor: 1.2
+      , densityReductionFactor: .8
+      , torqueReductionFactor: 1.2
+      , friction: 0.5
         }
 
       , tailNeuronData: {
