@@ -150,10 +150,42 @@ define([ "app/Body/BodyPart"
       var graphics = new PIXI.Graphics();
 
       // Draw variables:
+      var MOUTH_HEIGHT_FACTOR        = 0.8; // mouth height as a percentage of torso height
+      var MOUTH_CORNER_HEIGHT_FACTOR = 0.4; // as a percentage of torso height
+      var MOUTH_CORNER_WIDTH_FACTOR  = 0.6; // as a percentage of torso width
+      var MOUTH_BOTTOM_WIDTH_FACTOR  = 0.4; // as a percentage of torso width
+
 
       // Base fill:
       graphics.beginFill(0x4B5320, 1);
       graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
+      graphics.endFill();
+
+      // Mouth background fill:
+      var mouthTopX      = this.props.width  * METER
+        , mouthTopY      = this.props.height * METER * (1 - MOUTH_HEIGHT_FACTOR)
+        , mouthCornerX   = this.props.width  * METER * (1 - MOUTH_CORNER_WIDTH_FACTOR)
+        , mouthCornerY   = this.props.height * METER * (1 - MOUTH_CORNER_HEIGHT_FACTOR)
+        , mouthBottomX_1 = this.props.width  * METER * (1 - MOUTH_BOTTOM_WIDTH_FACTOR)
+        , mouthBottomY_1 = this.props.height * METER
+        , mouthBottomX_2 = this.props.width  * METER
+        , mouthBottomY_2 = this.props.height * METER
+        ;
+      var top_cp1_X = mouthTopX
+        , top_cp1_Y = mouthTopY
+        , top_cp2_X = mouthCornerX   + this.props.width * METER * MOUTH_CORNER_WIDTH_FACTOR / 2
+        , top_cp2_Y = mouthTopY
+        , bot_cp1_X = mouthCornerX
+        , bot_cp1_Y = mouthCornerY
+        , bot_cp2_X = mouthBottomX_1 - (mouthBottomX_1 - mouthCornerX) / 2
+        , bot_cp2_Y = mouthBottomY_2
+        ;
+
+      graphics.beginFill(0x000000, 1);
+      graphics.moveTo(mouthTopX, mouthTopY);
+      graphics.bezierCurveTo(top_cp1_X, top_cp1_Y, top_cp2_X, top_cp2_Y, mouthCornerX, mouthCornerY);
+      graphics.bezierCurveTo(bot_cp1_X, bot_cp1_Y, bot_cp2_X, bot_cp2_Y, mouthBottomX_1, mouthBottomY_1);
+      graphics.lineTo(mouthBottomX_2, mouthBottomY_2);
       graphics.endFill();
 
       // Center Pivot

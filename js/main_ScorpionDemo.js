@@ -95,7 +95,11 @@ require([
     testWall.addToWorld(world);
 
     var scorpionData = {
-        torsoData:  {}
+        torsoData:  {
+          width: 8
+        , height: 2
+
+        }
 
       , leftWheelData: {
           radius: 1
