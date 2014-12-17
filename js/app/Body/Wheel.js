@@ -123,12 +123,12 @@ define([ "app/Body/BodyPart"
 
       // Tire
       graphics.lineStyle(TIRE_WIDTH, 0x000000, 1);
-      graphics.drawCircle(0, 0, this.props.radius * METER - TIRE_WIDTH);
+      graphics.drawCircle(0, 0, this.props.radius * METER - TIRE_WIDTH / 2);
 
       // Hub cap
       graphics.lineStyle(HUB_CAP_BORDER_WIDTH, 0x000000, 1);
       graphics.beginFill(0xEEEEEE, 1);
-      graphics.drawCircle(0, 0, HUB_CAP_RADIUS - HUB_CAP_BORDER_WIDTH);
+      graphics.drawCircle(0, 0, HUB_CAP_RADIUS - HUB_CAP_BORDER_WIDTH / 2);
       graphics.endFill();
 
       this.graphics = graphics;

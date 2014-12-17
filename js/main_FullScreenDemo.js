@@ -42,80 +42,106 @@ require([
     // console.log(Body);
     // console.log(Wall);
 
-// ----------
-// Box2D Init
-// ----------
 
-    // Variable Simplification
-    var                     b2Vec2 = Box2D.Common.Math.b2Vec2
-        ,                   b2AABB = Box2D.Collision.b2AABB
-        ,                b2BodyDef = Box2D.Dynamics.b2BodyDef
-        ,                   b2Body = Box2D.Dynamics.b2Body
-        ,             b2FixtureDef = Box2D.Dynamics.b2FixtureDef
-        ,                b2Fixture = Box2D.Dynamics.b2Fixture
-        ,                  b2World = Box2D.Dynamics.b2World
-        ,               b2MassData = Box2D.Collision.Shapes.b2MassData
-        ,           b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-        ,            b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
-        ,              b2DebugDraw = Box2D.Dynamics.b2DebugDraw
-        ,          b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
-        ;
-
-
-    // Create World (In the simulation, we will create a new world for each creature)
-    var world = new b2World( new b2Vec2(0, 10), true);
-
-
-    var fixDef = new b2FixtureDef;
-    fixDef.density = 1.0;
-    fixDef.friction = 0.5;
-    fixDef.restitution = 0.2;
-
-    var bodyDef = new b2BodyDef;
-
-    //create ground
-    bodyDef.type = b2Body.b2_staticBody;
-    fixDef.shape = new b2PolygonShape;
-    fixDef.shape.SetAsBox(20, 2);
-    bodyDef.position.Set(10, 400 / 30 + 1.8);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    bodyDef.position.Set(10, -1.8);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    fixDef.shape.SetAsBox(2, 14);
-    bodyDef.position.Set(-1.8, 13);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-    bodyDef.position.Set(21.8, 13);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-
-    // --------------- Assert: Basic World Is Initialized -------------------
-
-
-    var testWall = new Wall.BasicWall(18, 7, 3, 15);
-    testWall.addToWorld(world);
-
-    testGenerator = new Generator();
-    var dat = testGenerator.GenerateRandData(2)
-    var parent1 = new Creature.Scorpion(dat[0], testWall);
-    var parent2 = new Creature.Scorpion(dat[1], testWall);
-
-    console.log(testGenerator.GenerateRandData(5));
-    var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2), testWall);
-    console.log(testCreature.props);
-
-    testCreature.addToWorld(world);
-
-    //---------------------------------------------------
-
-//---------------------------------------------------
 
 // PIXI Setup
 
-    function pixiRendererInit() {
+    function init() {
+
+
+        // ----------
+        // Box2D Init
+        // ----------
+
+        // Variable Simplification
+        var                     b2Vec2 = Box2D.Common.Math.b2Vec2
+            ,                   b2AABB = Box2D.Collision.b2AABB
+            ,                b2BodyDef = Box2D.Dynamics.b2BodyDef
+            ,                   b2Body = Box2D.Dynamics.b2Body
+            ,             b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+            ,                b2Fixture = Box2D.Dynamics.b2Fixture
+            ,                  b2World = Box2D.Dynamics.b2World
+            ,               b2MassData = Box2D.Collision.Shapes.b2MassData
+            ,           b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+            ,            b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+            ,              b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+            ,          b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef
+            ;
+
+
+        // Create World
+        var world = new b2World( new b2Vec2(0, 10), true);
+
+/*
+        The world will be the full width of the screen and the full height of the screen.
+        The meter size in pixels will depend on the ratio of the screen height in pixels
+        to the fixed height of the world in meters.
+*/
+        var pixelWidth  = window.innerWidth;
+        var pixelHeight = window.innerHeight;
+        var aspectRatio = pixelWidth / pixelHeight;
+
+        var worldHeight = 20; // meters
+        var worldWidth  = worldHeight * aspectRatio;
+
+        var METER = pixelHeight / worldHeight; // pixels per meter
+
+
+        var fixDef = new b2FixtureDef;
+        fixDef.shape = new b2PolygonShape;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
+
+        var bodyDef = new b2BodyDef;
+        bodyDef.type = b2Body.b2_staticBody;
+
+
+        // create ground
+        fixDef.shape.SetAsBox(worldWidth, 2);
+        bodyDef.position.Set(worldWidth / 2, worldHeight + 1.8);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+        // create ceiling
+        bodyDef.position.Set(worldWidth / 2, -1.8);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+        // create backstop
+        fixDef.shape.SetAsBox(2, worldHeight);
+        bodyDef.position.Set(-1.8, worldHeight / 2);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+
+        // create frontstop
+        bodyDef.position.Set(worldWidth + 1.8, worldHeight / 2);
+        world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+
+        // --------------- Assert: Basic World Is Initialized -------------------
+
+
+        var testWall = new Wall.BasicWall(worldWidth - worldWidth / 40, worldHeight / 2, worldWidth / 20, worldHeight);
+        testWall.addToWorld(world);
+
+        testGenerator = new Generator();
+        var dat = testGenerator.GenerateRandData(2)
+        var parent1 = new Creature.Scorpion(dat[0], testWall);
+        var parent2 = new Creature.Scorpion(dat[1], testWall);
+
+        console.log(testGenerator.GenerateRandData(5));
+        var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2), testWall);
+        console.log(testCreature.props);
+
+        testCreature.addToWorld(world);
+
+        //---------------------------------------------------
+
+
+
+
         // PIXI Init stuff
-        var METER = 30; // 30px per meter
         var stage = new PIXI.Stage(0x66FF99);
-        var renderer = PIXI.autoDetectRenderer(600, 400);
+        var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
 
         testCreature.addToStage(stage, METER);
@@ -154,7 +180,7 @@ require([
 
 
     $( document ).ready(function(){
-        pixiRendererInit();
+        init();
     });
 
 
