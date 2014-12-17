@@ -86,6 +86,23 @@ define([
         }
         return CData;
   		}
+    , GenerateData: function(parentA, parentB){
+        var AData=parentA;
+        var BData=parentB;
+        var CData=Utils.Data.copyThing(AData);
+        for(var prop in BData) {
+          for(var key in BData[prop]) { // Important: AData and BData should have the same property types contained in them.
+            if (Math.random() < 0.5) {
+              CData[prop][key] = BData[prop][key];
+            }
+            if (Math.random()<this.mutationRate && typeof(CData[prop][key])==="number"){
+              //console.log("mutation");
+              CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+            }
+          }
+        }
+        return CData;
+      }
     , 
 
 
