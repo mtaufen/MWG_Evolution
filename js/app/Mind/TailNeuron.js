@@ -66,7 +66,7 @@ define([
         maxMotorSpeeds: [1, 10]
       , targetPosition: 0
       , keyPositions: null
-      , distanceThreshold: 2
+      , distanceThreshold: 2.5
       , timePerPosition: 100
       };
       for (var key in data) {

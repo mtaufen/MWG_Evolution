@@ -107,31 +107,31 @@ require([
 
       , leftWheelJointData: {
           enableMotor: true
-        , motorSpeed: 10
-        , maxMotorTorque: 75
+        , motorSpeed: 15
+        , maxMotorTorque: 100
         }
 
       , rightWheelData: {
-          radius: .8
+          radius: .5
         , density: 5
         , friction: 0.1
         }
 
       , rightWheelJointData: {
           enableMotor: true
-        , motorSpeed: -6
+        , motorSpeed: -1
         , maxMotorTorque: 10
         }
 
       , tailData: {
-          numVertebrae: 5
-      , rootWidth: 0.4
-      , rootHeight: 1
-      , rootDensity: 1
+          numVertebrae: 3
+      , rootWidth: 0.2
+      , rootHeight: 1.3
+      , rootDensity: 1.3
       , rootMaxTorque: 750000
-      , widthReductionFactor: 1.4
-      , heightReductionFactor: 1.2
-      , densityReductionFactor: .8
+      , widthReductionFactor: .8
+      , heightReductionFactor: 1.1
+      , densityReductionFactor: 1.2
       , torqueReductionFactor: 1.2
       , friction: 0.5
         }
@@ -170,13 +170,13 @@ require([
         }
 
       , tailData: {
-          numVertebrae: 7
+          numVertebrae: 8
       , rootWidth: 0.4
-      , rootHeight: 1
-      , rootDensity: 1
+      , rootHeight: .8
+      , rootDensity: .5
       , rootMaxTorque: 750000
-      , widthReductionFactor: 1.4
-      , heightReductionFactor: 1.2
+      , widthReductionFactor: 1.5
+      , heightReductionFactor: .9
       , densityReductionFactor: .8
       , torqueReductionFactor: 1.2
       , friction: 0.5
@@ -189,7 +189,8 @@ require([
     var parent1 = new Creature.Scorpion(scorpionData1, testWall);
     var parent2 = new Creature.Scorpion(scorpionData2, testWall);
     testGenerator = new Generator();
-    var testCreature = testGenerator.Generate1(parent1, parent2, 0, 1, testWall);
+    console.log(testGenerator.GenerateRandData(5));
+    var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2, 1), testWall);
     console.log(testCreature.props);
     testCreature.addToWorld(world);
 

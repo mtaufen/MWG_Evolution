@@ -6,12 +6,69 @@ define([
   , "app/Body"
   , "app/Wall" ], function (Utils, Class, Creature, Body, Wall) {
   	var Generator=Class.extend({
-      CombineTraits: function(Trait1, Trait2){
-        return Utils.Math.randRange(Trait1, Trait2);
+      init: function(mRate){
+        if ( typeof(mRate) === 'undefined' ) { mRate = 0; }
+        this.mutationRate=mRate;
       }
-  	,	Generate1: function(parentA, parentB, mutationRate, mutationSize, targetWall){
+    , GenerateRandData: function(num){
+        var NData=[];
+        for (var i=0; i<num; i++){
+          var TData = {
+            torsoData:  {
+                initialX: 4
+                , initialY: 10
+                , initialAngle: 0
+                , width: Utils.Math.randRange(1,5)
+                , height: Utils.Math.randRange(.1,2)
+                , density: 1
+                , friction: 0.01
+            }
+
+            , leftWheelData: {
+              radius: Utils.Math.randRange(.1,2)
+              , density: 2
+              , friction: 0.1
+          }
+
+          , leftWheelJointData: {
+              enableMotor: true
+              , motorSpeed: Utils.Math.randRange(1,20)
+              , maxMotorTorque: 75
+          }
+
+          , rightWheelData: {
+              friction: 0.01
+          }
+
+          , rightWheelJointData: {
+              enableMotor: true
+              , motorSpeed: -6
+              , maxMotorTorque: 10
+          }
+
+          , tailData: {
+              numVertebrae: 10
+              , rootWidth: 0.2
+              , rootHeight: 1
+              , rootDensity: 1
+              , rootMaxTorque: 75000
+              , widthReductionFactor: 1
+              , heightReductionFactor: 1
+              , densityReductionFactor: 1
+              , torqueReductionFactor: 1
+              , friction: 0.5
+          }
+
+          , tailNeuronData: {
+
+          }
+        };
+        NData.push(Utils.Data.copyThing(TData));
+      }
+      return NData;
+    }
+  	,	Generate1: function(parentA, parentB, mutationRate){
   			if ( typeof(mutationRate) === 'undefined' ) { mutationRate = 0; }
-  			if ( typeof(mutationSize) === 'undefined' ) { mutationSize = 1; }
 
   			var AData=parentA.props;
   			var BData=parentB.props;
@@ -21,13 +78,15 @@ define([
             if (Math.random() < 0.5) {
               CData[prop][key] = BData[prop][key];
             }
+            if (Math.random()<mutationRate && typeof(CData[prop][key])==="number"){
+              //console.log("mutation");
+              CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+            }
           }
         }
-        var Child = new Creature.Scorpion(CData, targetWall);
-        return Child;
+        return CData;
   		}
-
-
+    , 
 
 
 
