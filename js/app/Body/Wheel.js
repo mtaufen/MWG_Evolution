@@ -85,8 +85,17 @@ define([ "app/Body/BodyPart"
       var graphics = new PIXI.Graphics();
 
       // Fill
-      graphics.beginFill(0xFFCCFF, 1);
+
+
+      graphics.lineStyle(2, 0x000000, 1);
+      graphics.beginFill(   0xCCCCCC, 1);
       graphics.drawCircle(0, 0, this.props.radius * METER);
+      graphics.endFill();
+
+      graphics.lineStyle(1, 0xAAAAAA, 1);
+      graphics.beginFill(   0xBBBBBB, 1);
+      graphics.drawRect(-this.props.radius * METER/2, -this.props.radius * METER/5,
+                        this.props.radius * METER, this.props.radius * METER/2.5);
       graphics.endFill();
 
       this.graphics = graphics;
