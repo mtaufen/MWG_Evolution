@@ -80,7 +80,13 @@ define([
             }
             if (Math.random()<this.mutationRate && typeof(CData[prop][key])==="number"){
               //console.log("mutation");
-              CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+              //CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+              if (Math.random() < 0.5) {
+                CData[prop][key] = CData[prop][key]*1.1;
+              }
+              else{
+                CData[prop][key] = CData[prop][key]*0.9;
+              }
             }
             if (Math.random()<this.mutationRate && key=="maxMotorSpeeds"){
               //console.log("mutation in maxMotorSpeeds");
@@ -101,7 +107,17 @@ define([
             }
             if (Math.random()<this.mutationRate && typeof(CData[prop][key])==="number"){
               //console.log("mutation");
-              CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+              //CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
+              if (Math.random() < 0.5) {
+                CData[prop][key] = CData[prop][key]*1.1;
+              }
+              else{
+                CData[prop][key] = CData[prop][key]*0.9;
+              }
+            }
+            if (Math.random()<this.mutationRate && key=="maxMotorSpeeds"){
+              //console.log("mutation in maxMotorSpeeds");
+              CData[prop][key] = [Utils.Math.randRange(AData[prop][key][0], BData[prop][key][0]),Utils.Math.randRange(AData[prop][key][1], BData[prop][key][1])];
             }
           }
         }

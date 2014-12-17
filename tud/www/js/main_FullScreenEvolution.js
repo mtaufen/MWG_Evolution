@@ -205,7 +205,7 @@ require([
         var creatures = [];
         var creatureCollisionTotals = []
         var data;
-        var testGenerator = new Generator(.05);
+        var testGenerator = new Generator(.5);
         var creatureData = testGenerator.GenerateRandData(numcreatures);
 
         //Initialize creatureCollisionTotals
