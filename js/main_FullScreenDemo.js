@@ -140,19 +140,58 @@ require([
 
 
         // PIXI Init stuff
-        var stage = new PIXI.Stage(0x66FF99);
+        var paused = true; // Start paused
+
+        var interactive = true;
+        var stage = new PIXI.Stage(0x66FF99, interactive);
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
 
         testCreature.addToStage(stage, METER);
         testWall.addToStage(stage, METER);
 
+
+        // Add buttons:
+
+        var testButton = new PIXI.Graphics();
+        testButton.beginFill(0x000000, 1);
+        testButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+        testButton.endFill();
+        testButton.position.x = 0;
+        testButton.position.y = 0;
+        testButton.interactive = interactive;
+
+        var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"red"});
+        testButton.addChild(buttonText);
+        buttonText
+
+        testButton.click = function() {
+            if (buttonText.text === "Play") {
+                buttonText.setText("Pause");
+                paused = false;
+                requestAnimFrame( animate );
+            }
+            else {
+                buttonText.setText("Play");
+                paused = true;
+            }
+
+        }
+
+        stage.addChild(testButton);
+
+
+
+
         var entityData = testCreature.bodyPartData().concat( testWall.data() );
 
         requestAnimFrame( animate );
 
         function animate() {
-            requestAnimFrame( animate );
+            if (!paused) {
+                requestAnimFrame( animate );
+            }
+
 
             world.Step(1 / 60, 10, 10);
             testCreature.brain.think();
