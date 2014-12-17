@@ -98,10 +98,11 @@ require([
     var dat = testGenerator.GenerateRandData(2)
     var parent1 = new Creature.Scorpion(dat[0], testWall);
     var parent2 = new Creature.Scorpion(dat[1], testWall);
-    
+
     console.log(testGenerator.GenerateRandData(5));
     var testCreature = new Creature.Scorpion(testGenerator.Generate1(parent1, parent2), testWall);
     console.log(testCreature.props);
+
     testCreature.addToWorld(world);
 
     //---------------------------------------------------

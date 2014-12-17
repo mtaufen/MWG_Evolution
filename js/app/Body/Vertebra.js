@@ -98,8 +98,31 @@ define([ "app/Body/BodyPart"
       var graphics = new PIXI.Graphics();
 
       // Fill
-      graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
+      var tipHeight = this.props.height * METER * 0.2;
+      var topLeftX = 0
+        , topLeftY = tipHeight
+        , topTipX = this.props.width * METER / 2
+        , topTipY = 0
+        , topRightX = this.props.width * METER
+        , topRightY = tipHeight
+        , botRightX = this.props.width * METER
+        , botRightY = this.props.height * METER
+        , botTipX = this.props.width * METER / 2
+        , botTipY = this.props.height * METER - tipHeight
+        , botLeftX = 0
+        , botLeftY = this.props.height * METER
+        ;
+
+      graphics.lineStyle(1, 0x000000, 1);
+      graphics.beginFill(0xFFFFFF, 1);
+      graphics.moveTo( topLeftX, topLeftY );
+      graphics.lineTo( topTipX, topTipY );
+      graphics.lineTo( topRightX, topRightY );
+      graphics.lineTo( botRightX, botRightY );
+      graphics.lineTo( botTipX, botTipY );
+      graphics.lineTo( botLeftX, botLeftY );
+      graphics.lineTo( topLeftX, topLeftY );
+
       graphics.endFill();
 
       // Center Pivot

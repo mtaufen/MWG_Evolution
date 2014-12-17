@@ -85,9 +85,50 @@ define([ "app/Body/BodyPart"
 
       var graphics = new PIXI.Graphics();
 
-      // Fill
-      graphics.beginFill(0xFFCCFF, 1);
-      graphics.drawCircle(0, 0, this.props.radius * METER);
+      // Draw vars:
+      var TIRE_WIDTH           = this.props.radius * METER / 6;
+      var HUB_CAP_RADIUS       = this.props.radius * METER / 5;
+      var HUB_CAP_BORDER_WIDTH = 1;
+      var SPOKE_V_ARC_ANGLE    = 80 * Math.PI / 180;
+
+      // Break pad
+      graphics.beginFill(0xCCCCCC, 1);
+      graphics.drawCircle(0, 0, this.props.radius * METER / 2);
+      graphics.endFill();
+
+      // Spokes
+      graphics.lineStyle(1, 0x000000, 1);
+      for (var i = 0; i < 8; ++i) {
+        var a = i*2*Math.PI/8;
+        var hubX  = HUB_CAP_RADIUS * Math.cos(a)
+          , hubY  = HUB_CAP_RADIUS * Math.sin(a)
+          , tireX = (this.props.radius * METER - TIRE_WIDTH) * Math.cos(a)
+          , tireY = (this.props.radius * METER - TIRE_WIDTH) * Math.sin(a);
+
+        var startX = HUB_CAP_RADIUS * Math.cos(a)
+          , startY = HUB_CAP_RADIUS * Math.sin(a)
+          , endX_1 = (this.props.radius * METER - TIRE_WIDTH) * Math.cos(a + SPOKE_V_ARC_ANGLE / 2)
+          , endY_1 = (this.props.radius * METER - TIRE_WIDTH) * Math.sin(a + SPOKE_V_ARC_ANGLE / 2)
+          , endX_2 = (this.props.radius * METER - TIRE_WIDTH) * Math.cos(a - SPOKE_V_ARC_ANGLE / 2)
+          , endY_2 = (this.props.radius * METER - TIRE_WIDTH) * Math.sin(a - SPOKE_V_ARC_ANGLE / 2)
+          ;
+
+          graphics.moveTo(startX, startY);
+          graphics.lineTo(endX_1, endY_1);
+
+          graphics.moveTo(startX, startY);
+          graphics.lineTo(endX_2, endY_2);
+      }
+
+
+      // Tire
+      graphics.lineStyle(TIRE_WIDTH, 0x000000, 1);
+      graphics.drawCircle(0, 0, this.props.radius * METER - TIRE_WIDTH);
+
+      // Hub cap
+      graphics.lineStyle(HUB_CAP_BORDER_WIDTH, 0x000000, 1);
+      graphics.beginFill(0xEEEEEE, 1);
+      graphics.drawCircle(0, 0, HUB_CAP_RADIUS - HUB_CAP_BORDER_WIDTH);
       graphics.endFill();
 
       this.graphics = graphics;
