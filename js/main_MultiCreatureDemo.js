@@ -89,49 +89,98 @@ require([
 
     // --------------- Assert: Basic World Is Initialized -------------------
 
-    var numcreatures = 20;
+    //Set up variables
+    var numcreatures = 3;
     var creatures = [];
+    var creatureCollisionTotals = new Array(numcreatures);
     var data;
+
+    creatureCollisionTotals.forEach(function(item){
+        item = 0;
+    });
     // Add test objects
-    var testWall = new Wall.BasicWall(18, 7, 3, 15);
-    testWall.addToWorld(world);
-
-    var scorpionData = {
-        torsoData:  {}
-
-      , leftWheelData: {
-          radius: 1
-        , density: 2
-        , friction: 0.1
-        }
-
-      , leftWheelJointData: {
-          enableMotor: true
-        , motorSpeed: 10
-        , maxMotorTorque: 75
-        }
-
-      , rightWheelData: {
-          friction: 0.01
-        }
-
-      , rightWheelJointData: {
-          enableMotor: true
-        , motorSpeed: -6
-        , maxMotorTorque: 10
-        }
-
-      , tailData: {
-
-        }
-
-      , tailNeuronData: {
-
-        }
+    var calcForce = function(impulse){
+        var x = Math.abs(impulse.normalImpulses[0]);
+        var y = Math.abs(impulse.tangentImpulses[0]);
+        return Math.sqrt(x*x+y*y);
     };
 
+    var testWall = new Wall.BasicWall(18, 7, 3, 15);
+    testWall.wallCollision = new Box2D.Dynamics.b2ContactListener;
+    testWall.wallCollision.PostSolve = function(contact, impulse) {
+        var force = calcForce(impulse)
+        if ((contact.GetFixtureA().GetBody()==testWall.body && force>5)){
+            //creatureCollisionTotals[contact.GetFixtureB().GetBody().creatureID] += force;
+            creatureCollisionTotals[0] += force;
+        
+        }
+        else if (contact.GetFixtureB().GetBody()==testWall.body && force>5){
+            // creatureCollisionTotals[contact.GetFixtureA().GetBody().creatureID] += force;   
+            creatureCollisionTotals[0] += force;
+        }
+    }
+
+    world.SetContactListener(testWall.wallCollision);
+    testWall.addToWorld(world);
+    var generateData = function(){
+        var makeRandom = function(min, max){
+            return Math.random() * (max-min) + min;
+        }
+        var scorpionData = {
+            torsoData:  {
+                initialX: 4
+                , initialY: 10
+                , initialAngle: 0
+                , width: makeRandom(1,5)
+                , height: makeRandom(.1,2)
+                , density: 1
+                , friction: 0.01
+            }
+
+            , leftWheelData: {
+              radius: makeRandom(.1,2)
+              , density: 2
+              , friction: 0.1
+          }
+
+          , leftWheelJointData: {
+              enableMotor: true
+              , motorSpeed: makeRandom(1,20)
+              , maxMotorTorque: 75
+          }
+
+          , rightWheelData: {
+              friction: 0.01
+          }
+
+          , rightWheelJointData: {
+              enableMotor: true
+              , motorSpeed: -6
+              , maxMotorTorque: 10
+          }
+
+          , tailData: {
+              numVertebrae: 10
+              , rootWidth: 0.2
+              , rootHeight: 1
+              , rootDensity: 1
+              , rootMaxTorque: 75000
+              , widthReductionFactor: 1
+              , heightReductionFactor: 1
+              , densityReductionFactor: 1
+              , torqueReductionFactor: 1
+              , friction: 0.5
+          }
+
+          , tailNeuronData: {
+
+          }
+      };
+      return scorpionData;
+  }
+
     for (var i=0; i<numcreatures; ++i){
-    creatures[i] = new Creature.Scorpion(scorpionData, testWall);
+    creatures[i] = new Creature.Scorpion(generateData(), testWall);
     creatures[i].addToWorld(world);
     };
 

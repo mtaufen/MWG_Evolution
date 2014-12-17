@@ -24,5 +24,10 @@ define(["lib/Box2dWeb_dev"], function (Box2D) {
     return ret;
   }
 
+  Utils.Math.randRange = function (a, b) {
+    // returns the signed floating point remainder of dividing a by b
+    return Math.random() * (b-a) + a;
+  }
+
   return Utils;
 });
