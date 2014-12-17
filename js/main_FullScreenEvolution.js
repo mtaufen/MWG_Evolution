@@ -124,11 +124,11 @@ require([
         testWall.wallCollision = new Box2D.Dynamics.b2ContactListener;
         testWall.wallCollision.PostSolve = function(contact, impulse) {
             var force = calcForce(impulse)
-            if ((contact.GetFixtureA().GetBody()==testWall.body && force>5)){
+            if ((contact.GetFixtureA().GetBody()==testWall.body && force>4)){
                 creatureCollisionTotals[contact.GetFixtureB().GetBody().ID] += force;
 
             }
-            else if (contact.GetFixtureB().GetBody()==testWall.body && force>5){
+            else if (contact.GetFixtureB().GetBody()==testWall.body && force>4){
                 creatureCollisionTotals[contact.GetFixtureA().GetBody().ID] += force;   
             }
         }
@@ -201,11 +201,11 @@ require([
         }
 
         //Set up variables
-        var numcreatures = 3;
+        var numcreatures = 12;
         var creatures = [];
         var creatureCollisionTotals = []
         var data;
-        var testGenerator = new Generator();
+        var testGenerator = new Generator(.1);
         var creatureData = testGenerator.GenerateRandData(numcreatures);
 
         //Initialize creatureCollisionTotals
@@ -222,10 +222,18 @@ require([
 
         var evolve = function(seed){
             var tempData = testGenerator.GenerateRandData(numcreatures);
-            tempData.forEach(function(item){
-                item = testGenerator.GenerateData(seed, item);
-            })
-            tempData[0] = seed;
+            seed.forEach(function(item,i){
+                tempData[i]=item;
+            });
+            tempData[3]=testGenerator.GenerateData(seed[0],seed[1]);
+            tempData[4]=testGenerator.GenerateData(seed[0],seed[2]);
+            tempData[5]=testGenerator.GenerateData(seed[1],seed[2]);
+            tempData[6]=testGenerator.GenerateData(seed[0],seed[1]);
+            tempData[7]=testGenerator.GenerateData(seed[0],seed[2]);
+            tempData[8]=testGenerator.GenerateData(seed[1],seed[2]);
+            tempData[9]=testGenerator.GenerateData(seed[0],seed[1]);
+            tempData[10]=testGenerator.GenerateData(seed[0],seed[2]);
+            tempData[11]=testGenerator.GenerateData(seed[1],seed[2]);
             return tempData;
         }
 
@@ -240,43 +248,33 @@ require([
         //Generate the creatures
         makeGeneration(creatureData);
 
-        document.addEventListener("keypress", function(e) {
-         if (e.charCode == 101){
-             var total = 0;
-                var best = 0;
-                for(var i=0; i<numcreatures; ++i){
-                    if(creatureCollisionTotals[i] > total){
-                        total = creatureCollisionTotals[i];
-                        best = i;
-                    }
-                }
-                creatureData = evolve(creatureData[best]);
-                for(var i=0;i<numcreatures;++i){
-                    creatureCollisionTotals[i] = 0;
-                }
-                makeWorld();
-                for (var i = stage.children.length - 1; i >= 0; i--) {
-                  stage.removeChild(stage.children[i]);
-              };  
-              makeGeneration(creatureData);
-              testWall.addToStage(stage, METER);
-              makeButtons();
-              data = [testWall.data()]
-              creatures.forEach(function(creature, index, arr){
-                creature.addToStage(stage, METER);
-                data.push(creature.bodyPartData());
-            });
+        var fitness = creatureCollisionTotals.map(function (total, index) {
+            return {
+                total: total
+            ,   index: index
+            };
+        });
 
-              entityData = [].concat.apply([], data);
+        fitness.sort(function (a, b) {
+            if (a.total < b.total) {
+                return -1;
+            }
+            else if (a.total > b.total) {
+                return 1;
+            }
+            return 0;
+        });
 
-          stage.addChild(testButton);
-          stage.addChild(testButton2);
-            }        
-        else{
-            console.log(creatureCollisionTotals);
+        console.log(fitness);
 
+        var top3 = [];
+        for (var i = 0; i < 3; ++i) {
+            top3.push(fitness.pop().index);
         }
-    }, true);  
+
+        // Assert top3 has the top 3 fittest creatures' indices
+        console.log(top3);
+  
         //---------------------------------------------------
 
 
@@ -337,41 +335,39 @@ require([
             //buttonText
 
             testButton2.click = function() {
-                var total = 0;
-                var best = 0;
-                for(var i=0; i<numcreatures; ++i){
-                    if(creatureCollisionTotals[i] > total){
-                        total = creatureCollisionTotals[i];
-                        best = i;
-                    }
-                }
-                creatureData = evolve(creatureData[best]);
+                var seed = [];
+                top3.forEach(function (item) {
+                    seed.push(creatureData[item]);
+                });
+                creatureData = evolve(seed);
                 for(var i=0;i<numcreatures;++i){
                     creatureCollisionTotals[i] = 0;
                 }
                 makeWorld();
                 for (var i = stage.children.length - 1; i >= 0; i--) {
-                  stage.removeChild(stage.children[i]);
-              };  
-              makeGeneration(creatureData);
-              testWall.addToStage(stage, METER);
-              makeButtons();
-              data = [testWall.data()]
-              creatures.forEach(function(creature, index, arr){
-                creature.addToStage(stage, METER);
-                data.push(creature.bodyPartData());
-            });
+                    stage.removeChild(stage.children[i]);
+                };  
+                makeGeneration(creatureData);
+                testWall.addToStage(stage, METER);
+                makeButtons();
+                data = [testWall.data()]
+                creatures.forEach(function (creature, index, arr) {
+                    creature.addToStage(stage, METER);
+                    data.push(creature.bodyPartData());
+                });
 
-              entityData = [].concat.apply([], data);
+                entityData = [].concat.apply([], data);
 
-          }
+            } 
 
           stage.addChild(testButton);
 
           stage.addChild(testButton2);
 
-      }
+        } // end makeButtons() definition
+
         makeButtons();
+
         requestAnimFrame( animate );
 
         function animate() {
