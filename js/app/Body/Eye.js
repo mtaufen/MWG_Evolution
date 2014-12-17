@@ -85,7 +85,7 @@ define([
       var graphics = new PIXI.Graphics();
 
       // Fill
-      graphics.beginFill(0xFFCCFF, 1);
+      graphics.beginFill(0xFFFFFF, 1);
       graphics.drawRect(0, 0, this.width * METER, this.height * METER);
       graphics.endFill();
 
