@@ -276,9 +276,10 @@ require([
         //---------------------------------------------------
 
 
-
-
-        // PIXI Init stuff
+        window.setInterval(function(){
+            evolveButtonClick();
+        }, 25*1000)
+5        // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
         var stage = new PIXI.Stage(0x00AEFF, interactive);
@@ -296,6 +297,59 @@ require([
         });
 
         var entityData = [].concat.apply([], data);
+
+        var evolveButtonClick = function() {
+            var fitness = creatureCollisionTotals.map(function (total, index) {
+                return {
+                    total: total
+                    ,   index: index
+                };
+            });
+
+            fitness.sort(function (a, b) {
+                if (a.total < b.total) {
+                   return -1;
+               }
+               else if (a.total > b.total) {
+                return 1;
+            }
+            return 0;
+        });
+            for (i=11;i>8;i--){
+                console.log(fitness[i]);
+            }
+            var top3 = [];
+            for (var i = 0; i < 3; ++i) {
+                top3.push(fitness.pop().index);
+            }
+
+                // Assert top3 has the top 3 fittest creatures' indices
+                console.log(top3);
+
+                var seed = [];
+                top3.forEach(function (index) {
+                    seed.push(creatureData[index]);
+                });
+                creatureData = evolve(seed);
+                for(var i=0;i<numcreatures;++i){
+                    creatureCollisionTotals[i] = 0;
+                }
+                makeWorld();
+                for (var i = stage.children.length - 1; i >= 0; i--) {
+                    stage.removeChild(stage.children[i]);
+                };
+                makeGeneration(creatureData);
+                testWall.addToStage(stage, METER);
+                makeButtons();
+                data = [testWall.data()]
+                creatures.forEach(function (creature, index, arr) {
+                    creature.addToStage(stage, METER);
+                    data.push(creature.bodyPartData());
+                });
+
+                entityData = [].concat.apply([], data);
+
+            }
 
         var makeButtons = function(){
             var testButton = new PIXI.Graphics();
@@ -338,60 +392,6 @@ require([
             testButton2.addChild(buttonText2);
 
 
-
-
-            var evolveButtonClick = function() {
-                var fitness = creatureCollisionTotals.map(function (total, index) {
-                    return {
-                        total: total
-                    ,   index: index
-                    };
-                });
-
-                fitness.sort(function (a, b) {
-                if (a.total < b.total) {
-                 return -1;
-                }
-                else if (a.total > b.total) {
-                    return 1;
-                }
-                return 0;
-                });
-                for (i=11;i>8;i--){
-                    console.log(fitness[i]);
-                }
-                var top3 = [];
-                for (var i = 0; i < 3; ++i) {
-                    top3.push(fitness.pop().index);
-                }
-
-                // Assert top3 has the top 3 fittest creatures' indices
-                console.log(top3);
-
-                var seed = [];
-                top3.forEach(function (index) {
-                    seed.push(creatureData[index]);
-                });
-                creatureData = evolve(seed);
-                for(var i=0;i<numcreatures;++i){
-                    creatureCollisionTotals[i] = 0;
-                }
-                makeWorld();
-                for (var i = stage.children.length - 1; i >= 0; i--) {
-                    stage.removeChild(stage.children[i]);
-                };
-                makeGeneration(creatureData);
-                testWall.addToStage(stage, METER);
-                makeButtons();
-                data = [testWall.data()]
-                creatures.forEach(function (creature, index, arr) {
-                    creature.addToStage(stage, METER);
-                    data.push(creature.bodyPartData());
-                });
-
-                entityData = [].concat.apply([], data);
-
-            }
             testButton2.click = evolveButtonClick;
             testButton2.tap = evolveButtonClick;
 
