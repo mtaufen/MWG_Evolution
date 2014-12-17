@@ -117,9 +117,6 @@ define([ "app/Body/BodyPart"
 
           graphics.moveTo(startX, startY);
           graphics.lineTo(endX_2, endY_2);
-
-          // graphics.moveTo(hubX, hubY);
-          // graphics.lineTo(tireX, tireY);
       }
 
 
@@ -132,14 +129,6 @@ define([ "app/Body/BodyPart"
       graphics.beginFill(0xEEEEEE, 1);
       graphics.drawCircle(0, 0, HUB_CAP_RADIUS - HUB_CAP_BORDER_WIDTH);
       graphics.endFill();
-
-
-
-      // graphics.lineStyle(1, 0xAAAAAA, 1);
-      // graphics.beginFill(   0xBBBBBB, 1);
-      // graphics.drawRect(-this.props.radius * METER/2, -this.props.radius * METER/5,
-      //                   this.props.radius * METER, this.props.radius * METER/2.5);
-      // graphics.endFill();
 
       this.graphics = graphics;
 

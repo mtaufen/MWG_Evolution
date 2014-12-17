@@ -149,8 +149,10 @@ define([ "app/Body/BodyPart"
 
       var graphics = new PIXI.Graphics();
 
-      // Fill
-      graphics.beginFill(0xFFCCFF, 1);
+      // Draw variables:
+
+      // Base fill:
+      graphics.beginFill(0x4B5320, 1);
       graphics.drawRect(0, 0, this.props.width * METER, this.props.height * METER);
       graphics.endFill();
 
