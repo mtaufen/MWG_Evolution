@@ -16,7 +16,7 @@ define([ "app/Body/BodyPart"
         */
 
   var BoxTorso = BodyPart.extend({
-    init: function (data, groupIndex) {
+    init: function (data, groupIndex, ID) {
       /*
         The BoxTorso has attachment points at each corner and
         at the midpoints of each side.
@@ -99,7 +99,7 @@ define([ "app/Body/BodyPart"
       ];
 
       // Note: There is nothing to control on this torso, so it has no junctions.
-      this._super(attachments, [], groupIndex);
+      this._super(attachments, [], groupIndex, ID);
 
 
       this.initialX = this.props.initialX;
@@ -128,7 +128,8 @@ define([ "app/Body/BodyPart"
 
       var body = world.CreateBody(bodyDef);
       body.CreateFixture(polyFixture);
-
+      body.ID = this.ID;
+      
       var pos = new Box2D.Common.Math.b2Vec2(this.initialX, this.initialY);
       body.SetPosition(pos);
       body.SetAngle(this.initialAngle);

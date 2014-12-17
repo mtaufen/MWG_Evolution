@@ -167,11 +167,12 @@ define(["lib/Class"], function (Class) {
    */
 
   var BodyPart = Class.extend({
-    init: function (attachments, junctions, groupIndex) {
+    init: function (attachments, junctions, groupIndex, ID) {
       this.attachments = attachments || [];
       this.junctions = junctions || [];
       if (typeof(groupIndex) === 'undefined') { groupIndex = 0; }
 
+      this.ID = ID;
       this.initialX = null;
       this.initialY = null;
       this.initialAngle = 0;

@@ -10,7 +10,7 @@ define([
        ], function (BodyPart, Vertebra, RevoluteJoint, AfferentJunction, Box2D, PIXI) {
 
   var Tail = BodyPart.extend({
-    init: function (data, groupIndex) {
+    init: function (data, groupIndex, ID) {
       /*
         The tail has a single attachment point on the
         bottom of the root vertebra.
@@ -31,7 +31,7 @@ define([
       */
 
       // Super init:
-      this._super([], [], groupIndex);
+      this._super([], [], groupIndex, ID);
 
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
@@ -61,7 +61,7 @@ define([
         , height: this.props.rootHeight * Math.pow(this.props.heightReductionFactor, i)
         , density: this.props.rootDensity * Math.pow(this.props.densityReductionFactor, i)
         , friction: this.props.friction
-        }, this.groupIndex);
+        }, this.groupIndex, ID);
         this.vertebrae[i] = vertebra;
       }
 
