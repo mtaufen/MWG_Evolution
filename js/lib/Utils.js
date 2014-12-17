@@ -29,5 +29,19 @@ define(["lib/Box2dWeb_dev"], function (Box2D) {
     return Math.random() * (b-a) + a;
   }
 
+  Utils.Data = {};
+  Utils.Data.copyThing = function (obj) {
+  var retObj = {};
+  if (obj instanceof Object) {
+    for (var key in obj) {
+      retObj[key] = Utils.Data.copyThing(obj[key]);
+    }
+    return retObj;
+  }
+  else {
+    return obj;
+  }
+}
+
   return Utils;
 });
