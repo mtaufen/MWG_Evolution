@@ -30,7 +30,8 @@ require([
     , "app/Body"
     , "app/Creature"
     , "app/Wall"
-    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall) {
+    , "app/Generation/Generator"
+    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall, Generator) {
 
 
     // console.log($);
@@ -63,8 +64,6 @@ require([
 
     // Create World (In the simulation, we will create a new world for each creature)
     var world = new b2World( new b2Vec2(0, 10), true);
-
-
     var fixDef = new b2FixtureDef;
     fixDef.density = 1.0;
     fixDef.friction = 0.5;
@@ -86,26 +85,6 @@ require([
     bodyDef.position.Set(21.8, 13);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
 
-
-    // --------------- Assert: Basic World Is Initialized -------------------
-
-    //Set up variables
-    var numcreatures = 3;
-    var creatures = [];
-    var creatureCollisionTotals = []
-    var data;
-
-    //Initialize creatureCollisionTotals
-    for(var i=0;i<numcreatures;++i){
-        creatureCollisionTotals.push(0);
-    }
-    // Add test objects
-    var calcForce = function(impulse){ //Helper function for calculating force
-        var x = Math.abs(impulse.normalImpulses[0]);
-        var y = Math.abs(impulse.tangentImpulses[0]);
-        return Math.sqrt(x*x+y*y);
-    };
-
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.wallCollision = new Box2D.Dynamics.b2ContactListener;
     testWall.wallCollision.PostSolve = function(contact, impulse) {
@@ -126,67 +105,121 @@ require([
     world.SetContactListener(testWall.wallCollision);
     testWall.addToWorld(world);
 
-    //Generates random dna for creatures
-    var generateData = function(){
-        var scorpionData = {
-            torsoData:  {
-                initialX: 4
-                , initialY: 10
-                , initialAngle: 0
-                , width: Utils.Math.randRange(1,5)
-                , height: Utils.Math.randRange(.1,2)
-                , density: 1
-                , friction: 0.01
-            }
+    var makeWorld = function(){
+        world = new b2World( new b2Vec2(0, 10), true);
+        fixDef = new b2FixtureDef;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
 
-            , leftWheelData: {
-              radius: Utils.Math.randRange(.1,2)
-              , density: 2
-              , friction: 0.1
-          }
+        var bodyDef = new b2BodyDef;
 
-          , leftWheelJointData: {
-              enableMotor: true
-              , motorSpeed: Utils.Math.randRange(1,20)
-              , maxMotorTorque: 75
-          }
+    //create ground
+    bodyDef.type = b2Body.b2_staticBody;
+    fixDef.shape = new b2PolygonShape;
+    fixDef.shape.SetAsBox(20, 2);
+    bodyDef.position.Set(10, 400 / 30 + 1.8);
+    world.CreateBody(bodyDef).CreateFixture(fixDef);
+    bodyDef.position.Set(10, -1.8);
+    //world.CreateBody(bodyDef).CreateFixture(fixDef);
+    fixDef.shape.SetAsBox(2, 14);
+    bodyDef.position.Set(-1.8, 13);
+    world.CreateBody(bodyDef).CreateFixture(fixDef);
+    bodyDef.position.Set(21.8, 13);
+    world.CreateBody(bodyDef).CreateFixture(fixDef);
 
-          , rightWheelData: {
-            radius: Utils.Math.randRange(.1,2)
-            ,friction: 0.01
+    testWall = new Wall.BasicWall(18, 7, 3, 15);
+    testWall.wallCollision = new Box2D.Dynamics.b2ContactListener;
+    testWall.wallCollision.PostSolve = function(contact, impulse) {
+        var force = calcForce(impulse)
+        if ((contact.GetFixtureA().GetBody()==testWall.body && force>5)){
+            creatureCollisionTotals[contact.GetFixtureB().GetBody().ID] += force;
+             // console.log(contact.GetFixtureB().GetBody());
+            //creatureCollisionTotals[0] += force;
+        
         }
+        else if (contact.GetFixtureB().GetBody()==testWall.body && force>5){
+            creatureCollisionTotals[contact.GetFixtureA().GetBody().ID] += force;   
+                         // console.log(contact.GetFixtureA().GetBody());
+            //creatureCollisionTotals[0] += force;
+        }
+    }
 
-        , rightWheelJointData: {
-          enableMotor: true
-          , motorSpeed: -6
-          , maxMotorTorque: 10
-      }
-
-      , tailData: {
-          numVertebrae: Utils.Math.randRange(1,10)
-          , rootWidth: Utils.Math.randRange(0.1,1)
-          , rootHeight: 1
-          , rootDensity: 1
-          , rootMaxTorque: 75000
-          , widthReductionFactor: Utils.Math.randRange(.8,1.2)
-          , heightReductionFactor: Utils.Math.randRange(.8,1.2)
-          , densityReductionFactor: 1
-          , torqueReductionFactor: 1
-          , friction: 0.5
-      }
-
-      , tailNeuronData: {
-
-      }
-  };
-  return scorpionData;
+    world.SetContactListener(testWall.wallCollision);
+    testWall.addToWorld(world);
 }
 
-    //Generate the creatures
-    for (var i=0; i<numcreatures; ++i){
-    creatures[i] = new Creature.Scorpion(generateData(), testWall, -1, i);
-    creatures[i].addToWorld(world);
+
+
+
+    // --------------- Assert: Basic World Is Initialized -------------------
+
+    //Set up variables
+    var numcreatures = 3;
+    var creatures = [];
+    var creatureCollisionTotals = []
+    var data;
+
+    //Initialize creatureCollisionTotals
+    for(var i=0;i<numcreatures;++i){
+        creatureCollisionTotals.push(0);
+    }
+    // Add test objects
+    var calcForce = function(impulse){ //Helper function for calculating force
+        var x = Math.abs(impulse.normalImpulses[0]);
+        var y = Math.abs(impulse.tangentImpulses[0]);
+        return Math.sqrt(x*x+y*y);
     };
+
+    
+    var testGenerator = new Generator();
+
+    var evolve = function(seed){
+        var tempData = testGenerator.GenerateRandData(numcreatures);
+        tempData.forEach(function(item){
+            item = testGenerator.GenerateData(seed, item);
+        })
+        tempData[0] = seed;
+        return tempData;
+    }
+
+    var makeGeneration = function(data){
+        for (var i=0; i<numcreatures; ++i){
+            creatures[i] = new Creature.Scorpion(data[i], testWall, -1, i);
+            creatures[i].addToWorld(world);
+        }
+    }
+
+   
+    //Generate the creatures
+    var creatureData = testGenerator.GenerateRandData(numcreatures);
+    makeGeneration(creatureData);
+
+    document.addEventListener("keypress", function(e) {
+       if (e.charCode == 101){
+            var total = 0;
+            var best = 0;
+            for(var i=0; i<numcreatures; ++i){
+                if(creatureCollisionTotals[i] > total){
+                    total = creatureCollisionTotals[i];
+                    best = i;
+                }
+            }
+            creatureData = evolve(creatureData[best]);
+            for(var i=0;i<numcreatures;++i){
+            creatureCollisionTotals[i] = 0;
+            }
+            makeWorld();
+            makeGeneration(creatureData);
+            debugRendererInit();
+            //pixiRendererInit();
+       }
+       else{
+        console.log(creatureCollisionTotals);
+        // console.log(e);
+
+        }
+    }, true);  
 
     //---------------------------------------------------
 
@@ -206,11 +239,7 @@ require([
         //mouse
 
         var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
-        var canvasPosition = getElementPosition(document.getElementById("canvas"));
-
-         document.addEventListener("keypress", function(e) {
-             console.log(creatureCollisionTotals);
-        }, true);        
+        var canvasPosition = getElementPosition(document.getElementById("canvas"));      
 
         document.addEventListener("mousedown", function(e) {
              isMouseDown = true;
