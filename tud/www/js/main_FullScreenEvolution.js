@@ -276,10 +276,11 @@ require([
         //---------------------------------------------------
         var timeAccelerationFactor = 1;
 
-        window.setInterval(function(){
-            evolveButtonClick();
-        }, 25*1000 / timeAccelerationFactor)
-5        // PIXI Init stuff
+        // window.setInterval(function(){
+
+        // }, 25*1000 / timeAccelerationFactor);
+
+        // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
         var stage = new PIXI.Stage(0x00AEFF, interactive);
@@ -314,7 +315,7 @@ require([
                 return 1;
             }
             return 0;
-        });
+            });
             for (i=11;i>8;i--){
                 console.log(fitness[i]);
             }
@@ -340,7 +341,11 @@ require([
                 };
                 makeGeneration(creatureData);
                 testWall.addToStage(stage, METER);
-                makeButtons();
+                // makeButtons();
+                stage.addChild(testButton);
+                stage.addChild(testButton2);
+                stage.addChild(timeButton);
+
                 data = [testWall.data()]
                 creatures.forEach(function (creature, index, arr) {
                     creature.addToStage(stage, METER);
@@ -350,9 +355,12 @@ require([
                 entityData = [].concat.apply([], data);
 
             }
+        var testButton;
+        var testButton2;
+        var timeButton;
 
         var makeButtons = function(){
-            var testButton = new PIXI.Graphics();
+            testButton = new PIXI.Graphics();
             testButton.beginFill(0x000000, 1);
             testButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
             testButton.endFill();
@@ -360,7 +368,7 @@ require([
             testButton.position.y = 0;
             testButton.interactive = interactive;
 
-            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"red"});
+            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"white"});
             testButton.addChild(buttonText);
             // buttonText
 
@@ -380,7 +388,7 @@ require([
             testButton.click = playPauseButtonClick;
             testButton.tap = playPauseButtonClick;
 
-            var testButton2 = new PIXI.Graphics();
+            testButton2 = new PIXI.Graphics();
             testButton2.beginFill(0x000000, 1);
             testButton2.drawRect(0, 0, 3 * METER, 1.2 * METER);
             testButton2.endFill();
@@ -388,7 +396,7 @@ require([
             testButton2.position.y = 0;
             testButton2.interactive = interactive;
 
-            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"red"});
+            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"white"});
             testButton2.addChild(buttonText2);
 
 
@@ -411,14 +419,14 @@ require([
                 }
             }
 
-            var timeButton = new PIXI.Graphics();
+            timeButton = new PIXI.Graphics();
             timeButton.beginFill(0x000000, 1);
             timeButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
             timeButton.endFill();
             timeButton.position.x = 10*METER;
             timeButton.position.y = 0;
             timeButton.interactive = interactive;
-            var timeButtonText = new PIXI.Text("1x", {font: METER + "px Arial", fill:"red"});
+            var timeButtonText = new PIXI.Text("1x", {font: METER + "px Arial", fill:"white"});
             timeButton.addChild(timeButtonText);
 
             timeButton.click = timeButtonClick;
@@ -436,8 +444,15 @@ require([
 
         requestAnimFrame( animate );
 
-        function animate() {
+        var startTime = Date.now();
 
+        function animate() {
+            var curTime = Date.now();
+
+            if (curTime - startTime >= 25 * 1000 / timeAccelerationFactor) {
+                evolveButtonClick();
+                startTime = curTime;
+            }
 
             world.Step(timeAccelerationFactor / 60, Math.ceil(10 * timeAccelerationFactor), Math.ceil(10 * timeAccelerationFactor));
             creatures.forEach(function(creature, index, arr){
