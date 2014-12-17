@@ -55,7 +55,7 @@ define([
       this.torso = new Body.BoxTorso(this.props.torsoData, groupIndex, creatureID);
 
       // LEFT WHEEL
-      console.log("left wheel");
+      //console.log("left wheel");
       this.leftWheel = new Body.Wheel(this.props.leftWheelData, groupIndex, creatureID);
       this.leftWheelJoint = new Body.RevoluteJoint(this.props.leftWheelJointData);
 
@@ -63,7 +63,7 @@ define([
       this.leftWheel.attach(0, this.leftWheelJoint, 1); // attach left wheel center to left wheel joint top
 
       // RIGHT WHEEL
-      console.log("right wheel");
+      //console.log("right wheel");
       this.rightWheel = new Body.Wheel(this.props.rightWheelData, groupIndex, creatureID);
       this.rightWheelJoint = new Body.RevoluteJoint(this.props.rightWheelJointData);
       this.torso.attach(4, this.rightWheelJoint, 0);
