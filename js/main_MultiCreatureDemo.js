@@ -79,7 +79,7 @@ require([
     bodyDef.position.Set(10, 400 / 30 + 1.8);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
     bodyDef.position.Set(10, -1.8);
-    world.CreateBody(bodyDef).CreateFixture(fixDef);
+    //world.CreateBody(bodyDef).CreateFixture(fixDef);
     fixDef.shape.SetAsBox(2, 14);
     bodyDef.position.Set(-1.8, 13);
     world.CreateBody(bodyDef).CreateFixture(fixDef);
@@ -92,14 +92,15 @@ require([
     //Set up variables
     var numcreatures = 3;
     var creatures = [];
-    var creatureCollisionTotals = new Array(numcreatures);
+    var creatureCollisionTotals = []
     var data;
 
-    creatureCollisionTotals.forEach(function(item){
-        item = 0;
-    });
+    //Initialize creatureCollisionTotals
+    for(var i=0;i<numcreatures;++i){
+        creatureCollisionTotals.push(0);
+    }
     // Add test objects
-    var calcForce = function(impulse){
+    var calcForce = function(impulse){ //Helper function for calculating force
         var x = Math.abs(impulse.normalImpulses[0]);
         var y = Math.abs(impulse.tangentImpulses[0]);
         return Math.sqrt(x*x+y*y);
@@ -122,6 +123,8 @@ require([
 
     world.SetContactListener(testWall.wallCollision);
     testWall.addToWorld(world);
+
+    //Generates random dna for creatures
     var generateData = function(){
         var makeRandom = function(min, max){
             return Math.random() * (max-min) + min;
@@ -131,26 +134,27 @@ require([
                 initialX: 4
                 , initialY: 10
                 , initialAngle: 0
-                , width: makeRandom(1,5)
-                , height: makeRandom(.1,2)
+                , width: Utils.Math.randRange(1,5)
+                , height: Utils.Math.randRange(.1,2)
                 , density: 1
                 , friction: 0.01
             }
 
             , leftWheelData: {
-              radius: makeRandom(.1,2)
+              radius: Utils.Math.randRange(.1,2)
               , density: 2
               , friction: 0.1
           }
 
           , leftWheelJointData: {
               enableMotor: true
-              , motorSpeed: makeRandom(1,20)
+              , motorSpeed: Utils.Math.randRange(1,20)
               , maxMotorTorque: 75
           }
 
           , rightWheelData: {
-              friction: 0.01
+            radius: Utils.Math.randRange(.1,2)
+              ,friction: 0.01
           }
 
           , rightWheelJointData: {
@@ -160,13 +164,13 @@ require([
           }
 
           , tailData: {
-              numVertebrae: 10
-              , rootWidth: 0.2
+              numVertebrae: Utils.Math.randRange(1,10)
+              , rootWidth: Utils.Math.randRange(0.1,1)
               , rootHeight: 1
               , rootDensity: 1
               , rootMaxTorque: 75000
-              , widthReductionFactor: 1
-              , heightReductionFactor: 1
+              , widthReductionFactor: Utils.Math.randRange(.8,1.2)
+              , heightReductionFactor: Utils.Math.randRange(.8,1.2)
               , densityReductionFactor: 1
               , torqueReductionFactor: 1
               , friction: 0.5
@@ -179,6 +183,7 @@ require([
       return scorpionData;
   }
 
+    //Generate the creatures
     for (var i=0; i<numcreatures; ++i){
     creatures[i] = new Creature.Scorpion(generateData(), testWall);
     creatures[i].addToWorld(world);
@@ -203,6 +208,10 @@ require([
 
         var mouseX, mouseY, mousePVec, isMouseDown, selectedBody, mouseJoint;
         var canvasPosition = getElementPosition(document.getElementById("canvas"));
+
+         document.addEventListener("keypress", function(e) {
+             console.log(creatureCollisionTotals);
+        }, true);        
 
         document.addEventListener("mousedown", function(e) {
              isMouseDown = true;
