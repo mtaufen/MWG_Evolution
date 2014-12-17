@@ -90,43 +90,28 @@ require([
     // --------------- Assert: Basic World Is Initialized -------------------
 
 
+    // Add test objects
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
+    testWall.wallCollision = new Box2D.Dynamics.b2ContactListener;
+    testWall.totalForce=0;
+    testWall.wallCollision.BeginContact = function(contact) {
+        if ((contact.GetFixtureA().GetBody()==testWall.body) || (contact.GetFixtureB().GetBody()==testWall.body))
+            console.log("Wall Collision")
+    };
+    testWall.wallCollision.PostSolve = function(contact, impulse) {
+        if ((contact.GetFixtureA().GetBody()==testWall.body) || (contact.GetFixtureB().GetBody()==testWall.body)){
+            var x = Math.abs(impulse.normalImpulses[0]);
+            var y = Math.abs(impulse.tangentImpulses[0]);
+            var z = Math.sqrt(x*x+y*y);
+            if (z>5){
+                testWall.totalForce+=z;//create cutoff for tiny amounts of force!
+                console.log(testWall.totalForce);
+        }
+    }}
+    world.SetContactListener(testWall.wallCollision);
     testWall.addToWorld(world);
 
-    var scorpionData = {
-        torsoData:  {}
-
-      , leftWheelData: {
-          radius: 1
-        , density: 2
-        , friction: 0.1
-        }
-
-      , leftWheelJointData: {
-          enableMotor: true
-        , motorSpeed: 10
-        , maxMotorTorque: 75
-        }
-
-      , rightWheelData: {
-          friction: 0.01
-        }
-
-      , rightWheelJointData: {
-          enableMotor: true
-        , motorSpeed: -6
-        , maxMotorTorque: 10
-        }
-
-      , tailData: {
-
-        }
-
-      , tailNeuronData: {
-
-        }
-    };
-    var testCreature = new Creature.Scorpion(scorpionData, testWall);
+    var testCreature = new Creature.Car(4, 10, testWall);
     testCreature.addToWorld(world);
 
     //---------------------------------------------------

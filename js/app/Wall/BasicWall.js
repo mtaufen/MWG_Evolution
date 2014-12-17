@@ -23,6 +23,27 @@ define([
       this.stage = null;
       this.graphics = null;
 
+      this.wallCollision = new Box2D.Dynamics.b2ContactListener;
+      this.totalForce=0;
+      /*this.wallCollision.BeginContact = function(contact) {
+        if (contact.GetFixtureA().GetBody()==this.body) 
+            console.log("Wall is Fixture A")
+        if (contact.GetFixtureB().GetBody()==this.body)
+            console.log("Wall is Fixture B")
+
+      };*/
+      //this.hasCollided = false;
+      this.wallCollision.PostSolve = function(contact, impulse) {
+        if ((contact.GetFixtureA().GetBody()==this.body) || (contact.GetFixtureB().GetBody()==this.body)){
+            var x = Math.abs(impulse.normalImpulses[0]);
+            var y = Math.abs(impulse.tangentImpulses[0]);
+            var z = Math.sqrt(x*x+y*y);
+            if (z>5){
+                this.totalForce+=z;//create cutoff for tiny amounts of force!
+                console.log(this.totalForce);
+            }
+      }}.bind(this);
+
 
     }
   , addToWorld: function (world) {
@@ -47,6 +68,9 @@ define([
       body.SetAngle(this.initialAngle);
 
       this.body = body;
+      this.body.mobileWebGraphicsName = "BasicWall";
+
+      world.SetContactListener(this.wallCollision);
 
     }
   , addToStage: function (stage, METER) {
