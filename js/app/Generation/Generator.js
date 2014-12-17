@@ -20,32 +20,32 @@ define([
                 , initialAngle: 0
                 , width: Utils.Math.randRange(2,5)
                 , height: Utils.Math.randRange(.1,2)
-                , density: Utils.Math.randRange(1,4)
+                , density: Utils.Math.randRange(1,5)
                 , friction: 0.01
             }
 
             , leftWheelData: {
-              radius: Utils.Math.randRange(.1,2)
+              radius: Utils.Math.randRange(.2,1.5)
               , density: 2
-              , friction: 0.1
+              , friction: Utils.Math.randRange(1,5)
           }
 
           , leftWheelJointData: {
               enableMotor: true
-              , motorSpeed: Utils.Math.randRange(1,20)
-              , maxMotorTorque: Utils.Math.randRange(10,100)
+              , motorSpeed: Utils.Math.randRange(3,6)
+              , maxMotorTorque: Utils.Math.randRange(10,30)
           }
 
           , rightWheelData: {
-              radius: Utils.Math.randRange(.1,2)
+              radius: Utils.Math.randRange(.1,1.3)
               , density: 2
-              , friction: 0.1
+              , friction: Utils.Math.randRange(1,4)
           }
 
           , rightWheelJointData: {
               enableMotor: true
-              , motorSpeed: Utils.Math.randRange(1,20)
-              , maxMotorTorque: Utils.Math.randRange(10,100)
+              , motorSpeed: Utils.Math.randRange(3,6)
+              , maxMotorTorque: Utils.Math.randRange(10,20)
           }
 
           , tailData: {
@@ -62,7 +62,7 @@ define([
           }
 
           , tailNeuronData: {
-              maxMotorSpeeds: [Utils.Math.randRange(1,8), Utils.Math.randRange(5,20)]
+              maxMotorSpeeds: [Utils.Math.randRange(1,5), Utils.Math.randRange(5,20)]
           }
         };
         NData.push(Utils.Data.copyThing(TData));

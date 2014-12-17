@@ -112,6 +112,10 @@ require([
 
     testCreature.addToWorld(world);
 
+    document.addEventListener("click", function(){
+      console.log(testWall.totalForce);
+    });
+
 
 
     //---------------------------------------------------
