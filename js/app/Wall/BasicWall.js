@@ -26,7 +26,7 @@ define([
       this.wallCollision = new Box2D.Dynamics.b2ContactListener;
       this.totalForce=0;
       /*this.wallCollision.BeginContact = function(contact) {
-        if (contact.GetFixtureA().GetBody()==this.body) 
+        if (contact.GetFixtureA().GetBody()==this.body)
             console.log("Wall is Fixture A")
         if (contact.GetFixtureB().GetBody()==this.body)
             console.log("Wall is Fixture B")
@@ -80,7 +80,7 @@ define([
       var graphics = new PIXI.Graphics();
 
       // Fill
-      graphics.beginFill(0xFFCCFF, 1);
+      graphics.beginFill(0x809696, 1);
       graphics.drawRect(0, 0, this.width * METER, this.height * METER);
       graphics.endFill();
 
