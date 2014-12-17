@@ -155,6 +155,8 @@ define([ "app/Body/BodyPart"
       var MOUTH_CORNER_WIDTH_FACTOR  = 0.6; // as a percentage of torso width
       var MOUTH_BOTTOM_WIDTH_FACTOR  = 0.4; // as a percentage of torso width
 
+      var TONGUE_HEIGHT_FACTOR = MOUTH_HEIGHT_FACTOR / 3; // The tongue top will always interesect with the mouth corner, but this sets the height on the torso edge.
+
 
       // Base fill:
       graphics.beginFill(0x4B5320, 1);
@@ -171,22 +173,56 @@ define([ "app/Body/BodyPart"
         , mouthBottomX_2 = this.props.width  * METER
         , mouthBottomY_2 = this.props.height * METER
         ;
-      var top_cp1_X = mouthTopX
-        , top_cp1_Y = mouthTopY
-        , top_cp2_X = mouthCornerX   + this.props.width * METER * MOUTH_CORNER_WIDTH_FACTOR / 2
-        , top_cp2_Y = mouthTopY
-        , bot_cp1_X = mouthCornerX
-        , bot_cp1_Y = mouthCornerY
-        , bot_cp2_X = mouthBottomX_1 - (mouthBottomX_1 - mouthCornerX) / 2
-        , bot_cp2_Y = mouthBottomY_2
+      var mouth_top_cp1_X = mouthTopX
+        , mouth_top_cp1_Y = mouthTopY
+        , mouth_top_cp2_X = mouthCornerX   + this.props.width * METER * MOUTH_CORNER_WIDTH_FACTOR / 2
+        , mouth_top_cp2_Y = mouthTopY
+        , mouth_bot_cp1_X = mouthCornerX
+        , mouth_bot_cp1_Y = mouthCornerY
+        , mouth_bot_cp2_X = mouthBottomX_1 - (mouthBottomX_1 - mouthCornerX) / 2
+        , mouth_bot_cp2_Y = mouthBottomY_2
         ;
 
       graphics.beginFill(0x000000, 1);
       graphics.moveTo(mouthTopX, mouthTopY);
-      graphics.bezierCurveTo(top_cp1_X, top_cp1_Y, top_cp2_X, top_cp2_Y, mouthCornerX, mouthCornerY);
-      graphics.bezierCurveTo(bot_cp1_X, bot_cp1_Y, bot_cp2_X, bot_cp2_Y, mouthBottomX_1, mouthBottomY_1);
+      graphics.bezierCurveTo(mouth_top_cp1_X, mouth_top_cp1_Y, mouth_top_cp2_X, mouth_top_cp2_Y, mouthCornerX, mouthCornerY);
+      graphics.bezierCurveTo(mouth_bot_cp1_X, mouth_bot_cp1_Y, mouth_bot_cp2_X, mouth_bot_cp2_Y, mouthBottomX_1, mouthBottomY_1);
       graphics.lineTo(mouthBottomX_2, mouthBottomY_2);
       graphics.endFill();
+
+      // Tongue fill:
+      var tongueTopX = this.props.width  * METER
+        , tongueTopY = this.props.height * METER * (1 - TONGUE_HEIGHT_FACTOR)
+        ;
+      var tongue_top_cp1_X = mouthCornerX + this.props.width * METER * MOUTH_CORNER_WIDTH_FACTOR / 2
+        , tongue_top_cp1_Y = mouthTopY + this.props.height * METER / 4
+        , tongue_top_cp2_X = mouthCornerX + this.props.width * METER * MOUTH_CORNER_WIDTH_FACTOR / 2
+        , tongue_top_cp2_Y = mouthBottomY_1 + this.props.height * METER / 3
+        ;
+
+      graphics.beginFill(0xCF2727, 1);
+      graphics.moveTo(tongueTopX, tongueTopY);
+      graphics.bezierCurveTo(tongue_top_cp1_X, tongue_top_cp1_Y, tongue_top_cp2_X, tongue_top_cp2_Y, mouthCornerX, mouthCornerY);
+      graphics.bezierCurveTo(mouth_bot_cp1_X, mouth_bot_cp1_Y, mouth_bot_cp2_X, mouth_bot_cp2_Y, mouthBottomX_1, mouthBottomY_1);
+      graphics.lineTo(mouthBottomX_2, mouthBottomY_2);
+      graphics.endFill();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       // Center Pivot
       graphics.pivot = new PIXI.Point(this.props.width * METER/2, this.props.height * METER/2);
