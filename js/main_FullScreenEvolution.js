@@ -242,33 +242,36 @@ require([
 
         document.addEventListener("keypress", function(e) {
          if (e.charCode == 101){
-            var total = 0;
-            var best = 0;
-            for(var i=0; i<numcreatures; ++i){
-                if(creatureCollisionTotals[i] > total){
-                    total = creatureCollisionTotals[i];
-                    best = i;
+             var total = 0;
+                var best = 0;
+                for(var i=0; i<numcreatures; ++i){
+                    if(creatureCollisionTotals[i] > total){
+                        total = creatureCollisionTotals[i];
+                        best = i;
+                    }
                 }
-            }
-            creatureData = evolve(creatureData[best]);
-            for(var i=0;i<numcreatures;++i){
-                creatureCollisionTotals[i] = 0;
-            }
-            makeWorld();
-            for (var i = stage.children.length - 1; i >= 0; i--) {
+                creatureData = evolve(creatureData[best]);
+                for(var i=0;i<numcreatures;++i){
+                    creatureCollisionTotals[i] = 0;
+                }
+                makeWorld();
+                for (var i = stage.children.length - 1; i >= 0; i--) {
                   stage.removeChild(stage.children[i]);
-            };  
-            makeGeneration(creatureData);
-            testWall.addToStage(stage, METER);
-
-            data = [testWall.data()]
-            creatures.forEach(function(creature, index, arr){
-            creature.addToStage(stage, METER);
-            data.push(creature.bodyPartData());
+              };  
+              makeGeneration(creatureData);
+              testWall.addToStage(stage, METER);
+              makeButtons();
+              data = [testWall.data()]
+              creatures.forEach(function(creature, index, arr){
+                creature.addToStage(stage, METER);
+                data.push(creature.bodyPartData());
             });
 
-            entityData = [].concat.apply([], data);
-        }
+              entityData = [].concat.apply([], data);
+
+          stage.addChild(testButton);
+          stage.addChild(testButton2);
+            }        
         else{
             console.log(creatureCollisionTotals);
 
@@ -280,7 +283,9 @@ require([
 
 
         // PIXI Init stuff
-        var stage = new PIXI.Stage(0x66FF99);
+        var paused = true; // Start paused
+        var interactive = true;
+        var stage = new PIXI.Stage(0x66FF99, interactive);
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
         testWall.addToStage(stage, METER);
@@ -293,10 +298,86 @@ require([
 
         var entityData = [].concat.apply([], data);
 
+        var makeButtons = function(){
+            var testButton = new PIXI.Graphics();
+            testButton.beginFill(0x000000, 1);
+            testButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            testButton.endFill();
+            testButton.position.x = 0;
+            testButton.position.y = 0;
+            testButton.interactive = interactive;
+
+            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"red"});
+            testButton.addChild(buttonText);
+            // buttonText
+
+            testButton.click = function() {
+                if (buttonText.text === "Play") {
+                    buttonText.setText("Pause");
+                    paused = false;
+                    requestAnimFrame( animate );
+                }
+                else {
+                    buttonText.setText("Play");
+                    paused = true;
+                }
+
+            }
+
+            var testButton2 = new PIXI.Graphics();
+            testButton2.beginFill(0x000000, 1);
+            testButton2.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            testButton2.endFill();
+            testButton2.position.x = 4*METER;
+            testButton2.position.y = 0;
+            testButton2.interactive = interactive;
+
+            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"red"});
+            testButton2.addChild(buttonText2);
+            //buttonText
+
+            testButton2.click = function() {
+                var total = 0;
+                var best = 0;
+                for(var i=0; i<numcreatures; ++i){
+                    if(creatureCollisionTotals[i] > total){
+                        total = creatureCollisionTotals[i];
+                        best = i;
+                    }
+                }
+                creatureData = evolve(creatureData[best]);
+                for(var i=0;i<numcreatures;++i){
+                    creatureCollisionTotals[i] = 0;
+                }
+                makeWorld();
+                for (var i = stage.children.length - 1; i >= 0; i--) {
+                  stage.removeChild(stage.children[i]);
+              };  
+              makeGeneration(creatureData);
+              testWall.addToStage(stage, METER);
+              makeButtons();
+              data = [testWall.data()]
+              creatures.forEach(function(creature, index, arr){
+                creature.addToStage(stage, METER);
+                data.push(creature.bodyPartData());
+            });
+
+              entityData = [].concat.apply([], data);
+
+          }
+
+          stage.addChild(testButton);
+
+          stage.addChild(testButton2);
+
+      }
+        makeButtons();
         requestAnimFrame( animate );
 
         function animate() {
-            requestAnimFrame( animate );
+            if (!paused) {
+                requestAnimFrame( animate );
+            }
 
             world.Step(1 / 60, 10, 10);
             creatures.forEach(function(creature, index, arr){
