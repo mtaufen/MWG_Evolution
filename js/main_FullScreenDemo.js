@@ -81,7 +81,7 @@ require([
         var pixelHeight = window.innerHeight;
         var aspectRatio = pixelWidth / pixelHeight;
 
-        var worldHeight = 20; // meters
+        var worldHeight = 17; // meters
         var worldWidth  = worldHeight * aspectRatio;
 
         var METER = pixelHeight / worldHeight; // pixels per meter
