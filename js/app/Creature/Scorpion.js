@@ -31,6 +31,7 @@ define([
   var Scorpion = Class.extend({
     init: function (data, targetWall, groupIndex, creatureID) {
       if (typeof groupIndex == "undefined") { groupIndex = -1; }
+      if (typeof creatureID == "undefined") { creatureID = -1; }
 
       var b2Vec2 = Box2D.Common.Math.b2Vec2;
 
@@ -48,7 +49,7 @@ define([
       for (var key in data) {
         if (typeof(data[key]) !== 'undefined' ) { this.props[key] = data[key] };
       }
-      this.creatureID = creatureID;
+      this.ID = creatureID;
 
       // TORSO
       this.torso = new Body.BoxTorso(this.props.torsoData, groupIndex, creatureID);
