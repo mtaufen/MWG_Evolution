@@ -30,8 +30,8 @@ require([
     , "app/Body"
     , "app/Creature"
     , "app/Wall"
-    , "app/Generation"
-    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall) {
+    , "app/Generation/Generator"
+    ], function ($, Box2D, PIXI, Utils, Mind, Body, Creature, Wall, Generator) {
 
 
     // console.log($);
@@ -94,7 +94,7 @@ require([
     var testWall = new Wall.BasicWall(18, 7, 3, 15);
     testWall.addToWorld(world);
 
-    var scorpionData = {
+    var scorpionData1 = {
         torsoData:  {
           width: 5
         }
@@ -140,7 +140,57 @@ require([
 
         }
     };
-    var testCreature = new Creature.Scorpion(scorpionData, testWall);
+    var scorpionData2 = {
+        torsoData:  {
+          width: 8
+        }
+
+      , leftWheelData: {
+          radius: 3
+        , density: 2
+        , friction: 0.1
+        }
+
+      , leftWheelJointData: {
+          enableMotor: true
+        , motorSpeed: 10
+        , maxMotorTorque: 75
+        }
+
+      , rightWheelData: {
+          radius: 3
+        , density: 3
+        , friction: 0.1
+        }
+
+      , rightWheelJointData: {
+          enableMotor: true
+        , motorSpeed: -6
+        , maxMotorTorque: 10
+        }
+
+      , tailData: {
+          numVertebrae: 7
+      , rootWidth: 0.4
+      , rootHeight: 1
+      , rootDensity: 1
+      , rootMaxTorque: 750000
+      , widthReductionFactor: 1.4
+      , heightReductionFactor: 1.2
+      , densityReductionFactor: .8
+      , torqueReductionFactor: 1.2
+      , friction: 0.5
+        }
+
+      , tailNeuronData: {
+
+        }
+    };
+    var parent1 = new Creature.Scorpion(scorpionData1, testWall);
+    var parent2 = new Creature.Scorpion(scorpionData2, testWall);
+    testGenerator = new Generator();
+    var testCreature = testGenerator.Generate1(parent1, parent2, 0, 1, testWall);
+    console.log(testCreature.props);
     testCreature.addToWorld(world);
 
     //---------------------------------------------------

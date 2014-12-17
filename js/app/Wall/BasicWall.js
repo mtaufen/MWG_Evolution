@@ -40,7 +40,7 @@ define([
             var z = Math.sqrt(x*x+y*y);
             if (z>5){
                 this.totalForce+=z;//create cutoff for tiny amounts of force!
-                console.log(this.totalForce);
+                //console.log(this.totalForce);
             }
       }}.bind(this);
 
