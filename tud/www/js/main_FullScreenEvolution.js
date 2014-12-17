@@ -281,7 +281,12 @@ require([
         // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
-        var stage = new PIXI.Stage(0x66FF99, interactive);
+        var stage = new PIXI.Stage(0x00AEFF, interactive);
+
+        var filter = new PIXI.TiltShiftFilter();
+        stage.filters = [filter];
+
+
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
         testWall.addToStage(stage, METER);
@@ -333,8 +338,8 @@ require([
 
             var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"red"});
             testButton2.addChild(buttonText2);
-            
-                
+
+
 
 
             var evolveButtonClick = function() {
