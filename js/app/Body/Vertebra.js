@@ -112,6 +112,7 @@ define([ "app/Body/BodyPart"
         , botLeftY = this.props.height * METER
         ;
 
+      graphics.lineStyle(1, 0x000000, 1);
       graphics.beginFill(0xFFFFFF, 1);
       graphics.moveTo( topLeftX, topLeftY );
       graphics.lineTo( topTipX, topTipY );
@@ -119,6 +120,7 @@ define([ "app/Body/BodyPart"
       graphics.lineTo( botRightX, botRightY );
       graphics.lineTo( botTipX, botTipY );
       graphics.lineTo( botLeftX, botLeftY );
+      graphics.lineTo( topLeftX, topLeftY );
 
       graphics.endFill();
 
