@@ -15,7 +15,7 @@ define([
         for (var i=0; i<num; i++){
           var TData = {
             torsoData:  {
-                initialX: 4
+                initialX: 10
                 , initialY: 10
                 , initialAngle: 0
                 , width: Utils.Math.randRange(2,5)

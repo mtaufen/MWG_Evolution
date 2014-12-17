@@ -274,11 +274,11 @@ require([
         console.log(top3);*/
 
         //---------------------------------------------------
-
+        var timeAccelerationFactor = 1;
 
         window.setInterval(function(){
             evolveButtonClick();
-        }, 25*1000)
+        }, 25*1000 / timeAccelerationFactor)
 5        // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
@@ -395,9 +395,40 @@ require([
             testButton2.click = evolveButtonClick;
             testButton2.tap = evolveButtonClick;
 
-          stage.addChild(testButton);
 
+            var timeButtonClick = function () {
+                if (timeButtonText.text === "1x") {
+                    timeButtonText.setText("2.5x");
+                    timeAccelerationFactor = 2.5;
+                }
+                else if (timeButtonText.text === "2.5x") {
+                    timeButtonText.setText("5x");
+                    timeAccelerationFactor = 5;
+                }
+                else { // 5x
+                    timeButtonText.setText("1x");
+                    timeAccelerationFactor = 1;
+                }
+            }
+
+            var timeButton = new PIXI.Graphics();
+            timeButton.beginFill(0x000000, 1);
+            timeButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            timeButton.endFill();
+            timeButton.position.x = 10*METER;
+            timeButton.position.y = 0;
+            timeButton.interactive = interactive;
+            var timeButtonText = new PIXI.Text("1x", {font: METER + "px Arial", fill:"red"});
+            timeButton.addChild(timeButtonText);
+
+            timeButton.click = timeButtonClick;
+            timeButton.tap = timeButtonClick;
+
+
+
+          stage.addChild(testButton);
           stage.addChild(testButton2);
+          stage.addChild(timeButton);
 
         } // end makeButtons() definition
 
@@ -406,11 +437,9 @@ require([
         requestAnimFrame( animate );
 
         function animate() {
-            if (!paused) {
-                requestAnimFrame( animate );
-            }
 
-            world.Step(1 / 60, 10, 10);
+
+            world.Step(timeAccelerationFactor / 60, Math.ceil(10 * timeAccelerationFactor), Math.ceil(10 * timeAccelerationFactor));
             creatures.forEach(function(creature, index, arr){
                 creature.brain.think();
             });
@@ -431,6 +460,10 @@ require([
             renderer.render( stage );
 
             world.ClearForces();
+
+            if (!paused) {
+                requestAnimFrame( animate );
+            }
         }
 
     }

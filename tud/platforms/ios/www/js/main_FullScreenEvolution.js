@@ -205,7 +205,7 @@ require([
         var creatures = [];
         var creatureCollisionTotals = []
         var data;
-        var testGenerator = new Generator(.1);
+        var testGenerator = new Generator(.05);
         var creatureData = testGenerator.GenerateRandData(numcreatures);
 
         //Initialize creatureCollisionTotals
@@ -231,9 +231,6 @@ require([
             tempData[6]=testGenerator.GenerateData(seed[0],seed[1]);
             tempData[7]=testGenerator.GenerateData(seed[0],seed[2]);
             tempData[8]=testGenerator.GenerateData(seed[1],seed[2]);
-            tempData[9]=testGenerator.GenerateData(seed[0],seed[1]);
-            tempData[10]=testGenerator.GenerateData(seed[0],seed[2]);
-            tempData[11]=testGenerator.GenerateData(seed[1],seed[2]);
             return tempData;
         }
 
@@ -247,7 +244,7 @@ require([
 
         //Generate the creatures
         makeGeneration(creatureData);
-
+/*
         var fitness = creatureCollisionTotals.map(function (total, index) {
             return {
                 total: total
@@ -273,7 +270,8 @@ require([
         }
 
         // Assert top3 has the top 3 fittest creatures' indices
-        console.log(top3);
+
+        console.log(top3);*/
 
         //---------------------------------------------------
 
@@ -283,7 +281,10 @@ require([
         // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
-        var stage = new PIXI.Stage(0x66FF99, interactive);
+        var stage = new PIXI.Stage(0x00AEFF, interactive);
+
+
+
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
         testWall.addToStage(stage, METER);
@@ -335,13 +336,41 @@ require([
 
             var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"red"});
             testButton2.addChild(buttonText2);
-            //buttonText
+
+
 
 
             var evolveButtonClick = function() {
+                var fitness = creatureCollisionTotals.map(function (total, index) {
+                    return {
+                        total: total
+                    ,   index: index
+                    };
+                });
+
+                fitness.sort(function (a, b) {
+                if (a.total < b.total) {
+                 return -1;
+                }
+                else if (a.total > b.total) {
+                    return 1;
+                }
+                return 0;
+                });
+                for (i=11;i>8;i--){
+                    console.log(fitness[i]);
+                }
+                var top3 = [];
+                for (var i = 0; i < 3; ++i) {
+                    top3.push(fitness.pop().index);
+                }
+
+                // Assert top3 has the top 3 fittest creatures' indices
+                console.log(top3);
+
                 var seed = [];
-                top3.forEach(function (item) {
-                    seed.push(creatureData[item]);
+                top3.forEach(function (index) {
+                    seed.push(creatureData[index]);
                 });
                 creatureData = evolve(seed);
                 for(var i=0;i<numcreatures;++i){
