@@ -38,7 +38,7 @@ define([
       // Initialize properties:
       if ( typeof(data) === 'undefined' ) { data = {}; }
       this.props = {
-        torsoData:  {}
+        torsoData: {}
       , leftWheelData: {}
       , leftWheelJointData: {}
       , rightWheelData: {}

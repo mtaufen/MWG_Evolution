@@ -206,7 +206,7 @@ require([
         var creatureCollisionTotals = []
         var data;
         var testGenerator = new Generator(.5);
-        var creatureData = testGenerator.GenerateRandData(numcreatures);
+        var creatureData = testGenerator.GenerateRandData(numcreatures); // first generation is random
 
         //Initialize creatureCollisionTotals
         for(var i=0;i<numcreatures;++i){
@@ -244,60 +244,28 @@ require([
 
         //Generate the creatures
         makeGeneration(creatureData);
-/*
-        var fitness = creatureCollisionTotals.map(function (total, index) {
-            return {
-                total: total
-            ,   index: index
-            };
-        });
 
-        fitness.sort(function (a, b) {
-            if (a.total < b.total) {
-                return -1;
-            }
-            else if (a.total > b.total) {
-                return 1;
-            }
-            return 0;
-        });
-
-        console.log(fitness);
-
-        var top3 = [];
-        for (var i = 0; i < 3; ++i) {
-            top3.push(fitness.pop().index);
-        }
-
-        // Assert top3 has the top 3 fittest creatures' indices
-
-        console.log(top3);*/
-
-        //---------------------------------------------------
         var timeAccelerationFactor = 1;
-
-        // window.setInterval(function(){
-
-        // }, 25*1000 / timeAccelerationFactor);
 
         // PIXI Init stuff
         var paused = true; // Start paused
         var interactive = true;
         var stage = new PIXI.Stage(0x00AEFF, interactive);
 
-
-
         var renderer = PIXI.autoDetectRenderer(pixelWidth, pixelHeight);
         document.body.appendChild(renderer.view);
         testWall.addToStage(stage, METER);
 
-        var data = [testWall.data()]
+        var data = [testWall.data()];
         creatures.forEach(function(creature, index, arr){
             creature.addToStage(stage, METER);
             data.push(creature.bodyPartData());
         });
-
         var entityData = [].concat.apply([], data);
+
+        var playPauseButton;
+        var evolveButton;
+        var timeButton;
 
         var evolveButtonClick = function() {
             var fitness = creatureCollisionTotals.map(function (total, index) {
@@ -316,92 +284,83 @@ require([
             }
             return 0;
             });
-            for (i=11;i>8;i--){
-                console.log(fitness[i]);
-            }
+
             var top3 = [];
             for (var i = 0; i < 3; ++i) {
                 top3.push(fitness.pop().index);
             }
 
-                // Assert top3 has the top 3 fittest creatures' indices
-                console.log(top3);
+            // Assert: top3 has the top 3 fittest creatures' indices
 
-                var seed = [];
-                top3.forEach(function (index) {
-                    seed.push(creatureData[index]);
-                });
-                creatureData = evolve(seed);
-                for(var i=0;i<numcreatures;++i){
-                    creatureCollisionTotals[i] = 0;
-                }
-                makeWorld();
-                for (var i = stage.children.length - 1; i >= 0; i--) {
-                    stage.removeChild(stage.children[i]);
-                };
-                makeGeneration(creatureData);
-                testWall.addToStage(stage, METER);
-                // makeButtons();
-                stage.addChild(testButton);
-                stage.addChild(testButton2);
-                stage.addChild(timeButton);
-
-                data = [testWall.data()]
-                creatures.forEach(function (creature, index, arr) {
-                    creature.addToStage(stage, METER);
-                    data.push(creature.bodyPartData());
-                });
-
-                entityData = [].concat.apply([], data);
-
+            var seed = [];
+            top3.forEach(function (index) {
+                seed.push(creatureData[index]);
+            });
+            creatureData = evolve(seed);
+            for(var i=0;i<numcreatures;++i){
+                creatureCollisionTotals[i] = 0;
             }
-        var testButton;
-        var testButton2;
-        var timeButton;
+            makeWorld();
+            for (var i = stage.children.length - 1; i >= 0; i--) {
+                stage.removeChild(stage.children[i]);
+            };
+            makeGeneration(creatureData);
+            testWall.addToStage(stage, METER);
+            // makeButtons();
+            stage.addChild(playPauseButton);
+            stage.addChild(evolveButton);
+            stage.addChild(timeButton);
+
+            data = [testWall.data()];
+            creatures.forEach(function (creature, index, arr) {
+                creature.addToStage(stage, METER);
+                data.push(creature.bodyPartData());
+            });
+
+            entityData = [].concat.apply([], data);
+
+        }; // end evolveButtonClick()
+
 
         var makeButtons = function(){
-            testButton = new PIXI.Graphics();
-            testButton.beginFill(0x000000, 1);
-            testButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
-            testButton.endFill();
-            testButton.position.x = 0;
-            testButton.position.y = 0;
-            testButton.interactive = interactive;
+            playPauseButton = new PIXI.Graphics();
+            playPauseButton.beginFill(0x000000, 1);
+            playPauseButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            playPauseButton.endFill();
+            playPauseButton.position.x = 0;
+            playPauseButton.position.y = 0;
+            playPauseButton.interactive = interactive;
 
-            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"white"});
-            testButton.addChild(buttonText);
-            // buttonText
-
-
+            var playPauseButtonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"white"});
+            playPauseButton.addChild(playPauseButtonText);
             var playPauseButtonClick = function() {
-                if (buttonText.text === "Play") {
-                    buttonText.setText("Pause");
+                if (playPauseButtonText.text === "Play") {
+                    playPauseButtonText.setText("Pause");
                     paused = false;
                     requestAnimFrame( animate );
                 }
                 else {
-                    buttonText.setText("Play");
+                    playPauseButtonText.setText("Play");
                     paused = true;
                 }
 
-            }
-            testButton.click = playPauseButtonClick;
-            testButton.tap = playPauseButtonClick;
+            };
+            playPauseButton.click = playPauseButtonClick;
+            playPauseButton.tap = playPauseButtonClick;
 
-            testButton2 = new PIXI.Graphics();
-            testButton2.beginFill(0x000000, 1);
-            testButton2.drawRect(0, 0, 3 * METER, 1.2 * METER);
-            testButton2.endFill();
-            testButton2.position.x = 4*METER;
-            testButton2.position.y = 0;
-            testButton2.interactive = interactive;
+            evolveButton = new PIXI.Graphics();
+            evolveButton.beginFill(0x000000, 1);
+            evolveButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            evolveButton.endFill();
+            evolveButton.position.x = 4*METER;
+            evolveButton.position.y = 0;
+            evolveButton.interactive = interactive;
+            var evolveButtonText = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"white"});
+            evolveButton.addChild(evolveButtonText);
 
-            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"white"});
-            testButton2.addChild(buttonText2);
 
-
-            testButton2.click = evolveButtonClick;
-            testButton2.tap = evolveButtonClick;
+            evolveButton.click = evolveButtonClick;
+            evolveButton.tap = evolveButtonClick;
 
 
             var timeButtonClick = function () {
@@ -417,7 +376,7 @@ require([
                     timeButtonText.setText("1x");
                     timeAccelerationFactor = 1;
                 }
-            }
+            };
 
             timeButton = new PIXI.Graphics();
             timeButton.beginFill(0x000000, 1);
@@ -434,14 +393,13 @@ require([
 
 
 
-          stage.addChild(testButton);
-          stage.addChild(testButton2);
+          stage.addChild(playPauseButton);
+          stage.addChild(evolveButton);
           stage.addChild(timeButton);
 
-        } // end makeButtons() definition
+        }; // end makeButtons() definition
 
         makeButtons();
-
         requestAnimFrame( animate );
 
         var startTime = Date.now();
