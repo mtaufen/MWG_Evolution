@@ -111,7 +111,7 @@ define([
               //console.log("mutation");
               //CData[prop][key] = Utils.Math.randRange(AData[prop][key], BData[prop][key]);
               if (Math.random() < 0.5) {
-                CData[prop][key] = CData[prop][key]*1.1;
+                CData[prop][key] = CData[prop][key]*1.11111111;
               }
               else{
                 CData[prop][key] = CData[prop][key]*0.9;
