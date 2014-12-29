@@ -63,6 +63,8 @@ define([
 
           , tailNeuronData: {
               maxMotorSpeeds: [Utils.Math.randRange(1,5), Utils.Math.randRange(5,20)]
+            , distanceThreshold: 2.5
+            , timePerPosition: 100
           }
         };
         NData.push(Utils.Data.copyThing(TData));
@@ -123,7 +125,7 @@ define([
         }
         return CData;
       }
-    , 
+    ,
 
 
 
