@@ -205,7 +205,7 @@ require([
         var creatures = [];
         var creatureCollisionTotals = []
         var data;
-        var testGenerator = new Generator(.05);
+        var testGenerator = new Generator(.5);
         var creatureData = testGenerator.GenerateRandData(numcreatures);
 
         //Initialize creatureCollisionTotals
@@ -274,9 +274,11 @@ require([
         console.log(top3);*/
 
         //---------------------------------------------------
+        var timeAccelerationFactor = 1;
 
+        // window.setInterval(function(){
 
-
+        // }, 25*1000 / timeAccelerationFactor);
 
         // PIXI Init stuff
         var paused = true; // Start paused
@@ -297,8 +299,68 @@ require([
 
         var entityData = [].concat.apply([], data);
 
+        var evolveButtonClick = function() {
+            var fitness = creatureCollisionTotals.map(function (total, index) {
+                return {
+                    total: total
+                    ,   index: index
+                };
+            });
+
+            fitness.sort(function (a, b) {
+                if (a.total < b.total) {
+                   return -1;
+               }
+               else if (a.total > b.total) {
+                return 1;
+            }
+            return 0;
+            });
+            for (i=11;i>8;i--){
+                console.log(fitness[i]);
+            }
+            var top3 = [];
+            for (var i = 0; i < 3; ++i) {
+                top3.push(fitness.pop().index);
+            }
+
+                // Assert top3 has the top 3 fittest creatures' indices
+                console.log(top3);
+
+                var seed = [];
+                top3.forEach(function (index) {
+                    seed.push(creatureData[index]);
+                });
+                creatureData = evolve(seed);
+                for(var i=0;i<numcreatures;++i){
+                    creatureCollisionTotals[i] = 0;
+                }
+                makeWorld();
+                for (var i = stage.children.length - 1; i >= 0; i--) {
+                    stage.removeChild(stage.children[i]);
+                };
+                makeGeneration(creatureData);
+                testWall.addToStage(stage, METER);
+                // makeButtons();
+                stage.addChild(testButton);
+                stage.addChild(testButton2);
+                stage.addChild(timeButton);
+
+                data = [testWall.data()]
+                creatures.forEach(function (creature, index, arr) {
+                    creature.addToStage(stage, METER);
+                    data.push(creature.bodyPartData());
+                });
+
+                entityData = [].concat.apply([], data);
+
+            }
+        var testButton;
+        var testButton2;
+        var timeButton;
+
         var makeButtons = function(){
-            var testButton = new PIXI.Graphics();
+            testButton = new PIXI.Graphics();
             testButton.beginFill(0x000000, 1);
             testButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
             testButton.endFill();
@@ -306,7 +368,7 @@ require([
             testButton.position.y = 0;
             testButton.interactive = interactive;
 
-            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"red"});
+            var buttonText = new PIXI.Text("Play", {font: METER + "px Arial", fill:"white"});
             testButton.addChild(buttonText);
             // buttonText
 
@@ -326,7 +388,7 @@ require([
             testButton.click = playPauseButtonClick;
             testButton.tap = playPauseButtonClick;
 
-            var testButton2 = new PIXI.Graphics();
+            testButton2 = new PIXI.Graphics();
             testButton2.beginFill(0x000000, 1);
             testButton2.drawRect(0, 0, 3 * METER, 1.2 * METER);
             testButton2.endFill();
@@ -334,70 +396,47 @@ require([
             testButton2.position.y = 0;
             testButton2.interactive = interactive;
 
-            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"red"});
+            var buttonText2 = new PIXI.Text("Evolve", {font: METER + "px Arial", fill:"white"});
             testButton2.addChild(buttonText2);
 
 
-
-
-            var evolveButtonClick = function() {
-                var fitness = creatureCollisionTotals.map(function (total, index) {
-                    return {
-                        total: total
-                    ,   index: index
-                    };
-                });
-
-                fitness.sort(function (a, b) {
-                if (a.total < b.total) {
-                 return -1;
-                }
-                else if (a.total > b.total) {
-                    return 1;
-                }
-                return 0;
-                });
-                for (i=11;i>8;i--){
-                    console.log(fitness[i]);
-                }
-                var top3 = [];
-                for (var i = 0; i < 3; ++i) {
-                    top3.push(fitness.pop().index);
-                }
-
-                // Assert top3 has the top 3 fittest creatures' indices
-                console.log(top3);
-
-                var seed = [];
-                top3.forEach(function (index) {
-                    seed.push(creatureData[index]);
-                });
-                creatureData = evolve(seed);
-                for(var i=0;i<numcreatures;++i){
-                    creatureCollisionTotals[i] = 0;
-                }
-                makeWorld();
-                for (var i = stage.children.length - 1; i >= 0; i--) {
-                    stage.removeChild(stage.children[i]);
-                };
-                makeGeneration(creatureData);
-                testWall.addToStage(stage, METER);
-                makeButtons();
-                data = [testWall.data()]
-                creatures.forEach(function (creature, index, arr) {
-                    creature.addToStage(stage, METER);
-                    data.push(creature.bodyPartData());
-                });
-
-                entityData = [].concat.apply([], data);
-
-            }
             testButton2.click = evolveButtonClick;
             testButton2.tap = evolveButtonClick;
 
-          stage.addChild(testButton);
 
+            var timeButtonClick = function () {
+                if (timeButtonText.text === "1x") {
+                    timeButtonText.setText("2.5x");
+                    timeAccelerationFactor = 2.5;
+                }
+                else if (timeButtonText.text === "2.5x") {
+                    timeButtonText.setText("5x");
+                    timeAccelerationFactor = 5;
+                }
+                else { // 5x
+                    timeButtonText.setText("1x");
+                    timeAccelerationFactor = 1;
+                }
+            }
+
+            timeButton = new PIXI.Graphics();
+            timeButton.beginFill(0x000000, 1);
+            timeButton.drawRect(0, 0, 3 * METER, 1.2 * METER);
+            timeButton.endFill();
+            timeButton.position.x = 10*METER;
+            timeButton.position.y = 0;
+            timeButton.interactive = interactive;
+            var timeButtonText = new PIXI.Text("1x", {font: METER + "px Arial", fill:"white"});
+            timeButton.addChild(timeButtonText);
+
+            timeButton.click = timeButtonClick;
+            timeButton.tap = timeButtonClick;
+
+
+
+          stage.addChild(testButton);
           stage.addChild(testButton2);
+          stage.addChild(timeButton);
 
         } // end makeButtons() definition
 
@@ -405,12 +444,17 @@ require([
 
         requestAnimFrame( animate );
 
+        var startTime = Date.now();
+
         function animate() {
-            if (!paused) {
-                requestAnimFrame( animate );
+            var curTime = Date.now();
+
+            if (curTime - startTime >= 25 * 1000 / timeAccelerationFactor) {
+                evolveButtonClick();
+                startTime = curTime;
             }
 
-            world.Step(1 / 60, 10, 10);
+            world.Step(timeAccelerationFactor / 60, Math.ceil(10 * timeAccelerationFactor), Math.ceil(10 * timeAccelerationFactor));
             creatures.forEach(function(creature, index, arr){
                 creature.brain.think();
             });
@@ -431,6 +475,10 @@ require([
             renderer.render( stage );
 
             world.ClearForces();
+
+            if (!paused) {
+                requestAnimFrame( animate );
+            }
         }
 
     }
