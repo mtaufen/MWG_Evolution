@@ -1,6 +1,6 @@
 This is the final project for our Mobile Web Graphics course (Fall 2014). It serves as an investigation of genetic algorithms and very, very simple neural networks.
 
-We "evolve" a car-like creature with a scorpion-like tail on the basis of the amount of force it can apply to a wall over a given time period (by default 20 seconds in the most up-to-date demo). The intent is to produce creatures that are better at attacking the wall. Each creature has a body (represented by Box2D fixtures) and a mind (constructed as a very small neural network) to control different body parts. The mind is not a conventional neural in that it is never trained, but it does co-evolve with the body generation-to-generation. In this way the operation of the mind can improve.
+We "evolve" a car-like creature with a scorpion-like tail on the basis of the amount of force it can apply to a wall over a given time period (by default 20 seconds in the most up-to-date demo). The intent is to produce creatures that are better at attacking the wall. Each creature has a body (represented by Box2D fixtures) and a mind (constructed as a very small neural network) to control different body parts. The mind is not a conventional neural network in that it is never trained, but it does co-evolve with the body generation-to-generation. In this way the operation of the mind can improve.
 
 Current parameters that we evolve:
 
